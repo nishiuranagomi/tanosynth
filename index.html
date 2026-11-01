@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>たのしい、シンセカイ | Web Synth Collection</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* 背景色を深いダークネイビー（#0b0f19）に固定し、白文字が常にくっきり見えるように設定 */
+    html, body {
+      background-color: #0b0f19 !important;
+      color: #f8fafc;
+      font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
+      min-height: 100vh;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0b0f19 70%, #05070d 100%) fixed;
+    }
+
+    /* 背景グリッドパターン */
+    .bg-grid-pattern {
+      background-size: 36px 36px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+
+    /* グラスモーフィズムパネル */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .glass-card:hover, .glass-card.active {
+      background: rgba(30, 41, 59, 0.85);
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 16px 36px rgba(56, 189, 248, 0.25);
+    }
+
+    /* テーマ別グラデーションボーダー */
+    .theme-pink:hover, .theme-pink.active { border-color: rgba(244, 63, 94, 0.8); box-shadow: 0 12px 30px rgba(244, 63, 94, 0.3); }
+    .theme-cyan:hover, .theme-cyan.active { border-color: rgba(56, 189, 248, 0.8); box-shadow: 0 12px 30px rgba(56, 189, 248, 0.3); }
+    .theme-gold:hover, .theme-gold.active { border-color: rgba(251, 191, 36, 0.8); box-shadow: 0 12px 30px rgba(251, 191, 36, 0.3); }
+    .theme-purple:hover, .theme-purple.active { border-color: rgba(168, 85, 247, 0.8); box-shadow: 0 12px 30px rgba(168, 85, 247, 0.3); }
+    .theme-emerald:hover, .theme-emerald.active { border-color: rgba(16, 185, 129, 0.8); box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3); }
+
+    /* 浮遊アニメーション */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+    .animate-float {
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+
+    /* フェード効果 */
+    .fade-content {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .fade-out {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    /* シンボル表示円 */
+    .symbol-circle {
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+      animation: floatSlow 6s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-grid-pattern min-h-screen flex flex-col justify-between text-slate-100">
+
+  <!-- HEADER -->
+  <header class="glass-panel sticky top-0 z-50 px-4 sm:px-8 py-4 flex justify-between items-center border-b border-white/10">
+    <a href="#" class="flex items-center space-x-3 group">
+      <!-- 動きのあるロゴアイコン -->
+      <div class="animate-float w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-400 via-pink-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg transition transform group-hover:scale-110">
+        ✨
+      </div>
+      <div>
+        <h1 class="font-black text-lg sm:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-pink-300 to-amber-200 tracking-wider">
+          たのしい、シンセカイ
+        </h1>
+        <p class="text-[9px] sm:text-[10px] text-cyan-400 font-bold tracking-widest uppercase">Web Synth Collection</p>
+      </div>
+    </a>
+    
+    <nav class="flex items-center gap-3">
+      <div id="detection-status" class="hidden sm:flex items-center gap-2 text-xs text-slate-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="detection-text">自動検出有効</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-8 flex flex-col gap-8">
+
+    <!-- HERO / MAIN SYNTH PREVIEW (スワイプ操作対応エリア) -->
+    <section id="hero-section" class="glass-panel rounded-3xl p-6 sm:p-10 relative overflow-hidden transition-all duration-300 border border-white/15 select-none touch-pan-y">
+      <div class="absolute -top-24 -left-24 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        
+        <!-- Left: Details & Play Button -->
+        <div id="hero-text-container" class="lg:col-span-8 space-y-4 fade-content">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span id="hero-number" class="text-xs font-black text-cyan-300 tracking-widest uppercase bg-cyan-500/20 px-3 py-1 rounded-full border border-cyan-400/40 shadow">
+              #--
+            </span>
+            <span id="hero-filename" class="text-xs font-mono text-slate-400 bg-black/40 px-2.5 py-1 rounded border border-white/5">
+              synth.html
+            </span>
+          </div>
+
+          <h2 id="hero-title" class="text-2xl sm:text-4xl font-black text-white leading-tight drop-shadow">
+            シンセを読み込み中...
+          </h2>
+
+          <p id="hero-desc" class="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed max-w-2xl">
+            リポジトリ内のWebシンセサイザーを自動検索しています。
+          </p>
+
+          <div class="pt-2 flex flex-wrap items-center gap-4">
+            <a id="hero-play-btn" href="#" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 hover:from-pink-400 hover:to-amber-300 text-slate-950 font-black text-sm flex items-center gap-2.5 shadow-lg shadow-pink-500/25 transition transform active:scale-95 hover:scale-105">
+              <span>このシンセを起動する</span>
+              <i class="fa-solid fa-play text-xs"></i>
+            </a>
+
+            <!-- Tag Chips -->
+            <div id="hero-tags" class="flex flex-wrap gap-2 text-xs font-bold text-slate-300">
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Visual Icon -->
+        <div class="lg:col-span-4 flex justify-center items-center">
+          <div id="hero-visual-box" class="w-44 h-44 sm:w-60 sm:h-60 rounded-full flex items-center justify-center relative fade-content">
+            <div id="hero-visual-inner" class="symbol-circle w-full h-full rounded-full flex items-center justify-center">
+              <span id="hero-symbol" class="text-5xl sm:text-7xl font-serif text-amber-300 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]">
+                🎹
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SEARCH & FILTER SECTION -->
+    <section class="space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-4 rounded-2xl border border-white/10">
+        <!-- Title & Counter -->
+        <div class="flex items-center gap-3">
+          <h3 class="text-lg font-black text-slate-100 tracking-wide flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-cyan-400"></i> 作品コレクション
+          </h3>
+          <span id="synth-count" class="px-3 py-0.5 rounded-full bg-cyan-500/30 text-cyan-300 text-xs font-black border border-cyan-400/40">
+            0作品
+          </span>
+        </div>
+
+        <!-- Keyword Search Input -->
+        <div class="relative w-full md:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+          <input type="text" id="search-input" placeholder="タイトルや機能で検索..." class="w-full pl-9 pr-4 py-2 bg-slate-950/60 border border-white/15 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-400 transition shadow-inner">
+        </div>
+      </div>
+
+      <!-- Tag Filter Buttons -->
+      <div id="tag-filters" class="flex flex-wrap gap-2 pt-1">
+        <button class="tag-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-400 text-slate-950 border border-cyan-300 transition" data-tag="all">
+          すべて
+        </button>
+      </div>
+    </section>
+
+    <!-- SYNTH CARDS GRID -->
+    <section>
+      <div id="synth-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Dynamic Cards Inserted Here -->
+      </div>
+      
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden glass-panel rounded-2xl p-12 text-center text-slate-300 space-y-3">
+        <i class="fa-solid fa-compact-disc text-4xl text-slate-500 animate-spin"></i>
+        <p class="font-bold text-sm">該当するシンセサイザーが見つかりませんでした。</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="glass-panel py-6 px-6 text-center text-xs text-slate-400 font-bold border-t border-white/10 mt-12">
+    <p>&copy; たのしい、シンセカイ / Web Synth Collection. All rights reserved.</p>
+  </footer>
+
+  <!-- DYNAMIC PARSER & CONTROLLER SCRIPT -->
+  <script>
+    // 予備リスト（ローカル実行時や自動検出が失敗した場合のフォールバック）
+    const DEFAULT_SYNTH_FILES = [
+      'dharma.html',
+      'r_l_r_l_synth.html'
+    ];
+
+    let synthDataStore = [];
+    let activeTag = 'all';
+    let searchQuery = '';
+
+    // ヒーロープレビューの管理用変数
+    let currentHeroIndex = 0;
+    let autoSlideTimer = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadAllSynths();
+      setupHeroSwipe();
+      startAutoSlide();
+    });
+
+    // GitHub Pages / サーバー上のHTMLファイルを多角的に自動スキャン
+    async function discoverHtmlFiles() {
+      let detectedFiles = [];
+
+      // 1. synths.json（明示的なマニフェストファイル）があるか確認
+      try {
+        const jsonRes = await fetch('synths.json');
+        if (jsonRes.ok) {
+          const jsonList = await jsonRes.json();
+          if (Array.isArray(jsonList) && jsonList.length > 0) {
+            console.log("synths.jsonからファイルリストをロードしました:", jsonList);
+            return jsonList;
+          }
+        }
+      } catch (e) {
+        // synths.jsonが存在しない場合はスキップ
+      }
+
+      // 2. GitHub Pages上の場合、GitHub APIからレポジトリ内のファイル一覧を動的取得
+      const hostname = window.location.hostname;
+      const pathname = window.location.pathname.split('/').filter(Boolean);
+
+      if (hostname.endsWith('.github.io')) {
+        const owner = hostname.split('.')[0];
+        const repo = pathname.length > 0 ? pathname[0] : '';
+
+        if (owner && repo) {
+          try {
+            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/`;
+            const apiRes = await fetch(apiUrl);
+            if (apiRes.ok) {
+              const contents = await apiRes.json();
+              if (Array.isArray(contents)) {
+                detectedFiles = contents
+                  .filter(item => item.type === 'file' && item.name.endsWith('.html') && item.name !== 'index.html')
+                  .map(item => item.name);
+                
+                if (detectedFiles.length > 0) {
+                  console.log("GitHub APIより全HTMLを自動検出しました:", detectedFiles);
+                  document.getElementById('detection-text').textContent = `GitHub API (${detectedFiles.length}作品検出)`;
+                  return detectedFiles;
+                }
+              }
+            }
+          } catch (err) {
+            console.warn("GitHub API取得エラー。通常スキャンにフォールバックします。", err);
+          }
+        }
+      }
+
+      // 3. ローカルサーバーやDirectory Indexが有効なサーバー用スキャン
+      try {
+        const res = await fetch('./');
+        if (res.ok) {
+          const htmlText = await res.text();
+          const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+          const links = Array.from(doc.querySelectorAll('a'))
+            .map(a => a.getAttribute('href'))
+            .filter(href => href && href.endsWith('.html') && !href.startsWith('index.html') && !href.startsWith('http') && !href.startsWith('//'));
+          
+          if (links.length > 0) {
+            detectedFiles = [...new Set(links)];
+            console.log("ディレクトリインデックスから検出:", detectedFiles);
+            return detectedFiles;
+          }
+        }
+      } catch (e) {
+        console.warn("ディレクトリインデックス取得スキップ。フォールバックリストを使用します。");
+      }
+
+      // 4. 上記で取れなかった場合はデフォルトリストと統合
+      return DEFAULT_SYNTH_FILES;
+    }
+
+    // メイン読み込み処理
+    async function loadAllSynths() {
+      const fileList = await discoverHtmlFiles();
+
+      // 重複削除
+      const uniqueFiles = [...new Set([...fileList, ...DEFAULT_SYNTH_FILES])];
+
+      // 各HTMLファイルをFetchしてメタデータを解析
+      const fetchPromises = uniqueFiles.map(async (file, index) => {
+        try {
+          const response = await fetch(file);
+          if (!response.ok) return null;
+          const text = await response.text();
+          const doc = new DOMParser().parseFromString(text, 'text/html');
+
+          // メタタグ解析（フォールバック機能付き）
+          const getMeta = (name) => {
+            const el = doc.querySelector(`meta[name="${name}"]`);
+            return el ? el.getAttribute('content') : null;
+          };
+
+          // --- 特定のメタデータによる除外判定（正しく修正済み） ---
+          const isHidden = getMeta('synth-hidden') === 'true' || 
+                           getMeta('synth-exclude') === 'true' || 
+                           getMeta('synth-draft') === 'true' ||
+                           (getMeta('robots') && getMeta('robots').includes('noindex'));
+
+          if (isHidden) {
+            console.log(`[非読み込み] 特定のメタデータが含まれているためスキップされました: ${file}`);
+            return null;
+          }
+
+          const title = getMeta('synth-title') || doc.querySelector('title')?.textContent.split('|')[0].trim() || file;
+          const description = getMeta('synth-description') || getMeta('description') || 'Web Audio APIで作られたインタラクティブ・シンセサイザー。';
+          const tagsRaw = getMeta('synth-tags') || 'Web Audio API';
+          const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+          const color = getMeta('synth-color') || 'cyan'; // pink, cyan, gold, purple, emerald
+          const symbol = getMeta('synth-symbol') || '🎹';
+          const symbolType = getMeta('synth-symbol-type') || 'emoji';
+          
+          // ソート用ナンバー取得
+          const numberStr = getMeta('synth-number');
+          let sortNum = index + 1;
+          if (numberStr) {
+            const parsed = parseInt(numberStr.replace(/[^0-9]/g, ''), 10);
+            if (!isNaN(parsed)) sortNum = parsed;
+          }
+
+          return {
+            id: file.replace('.html', ''),
+            file: file,
+            title: title,
+            description: description,
+            tags: tags,
+            color: color,
+            symbol: symbol,
+            symbolType: symbolType,
+            numberRaw: numberStr,
+            sortNum: sortNum
+          };
+        } catch (err) {
+          console.error(`ファイル読み込みエラー: ${file}`, err);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      
+      // 有効なデータのみ抽出し、#xxのソート用数値（sortNum）で昇順ソート
+      synthDataStore = results
+        .filter(item => item !== null)
+        .sort((a, b) => a.sortNum - b.sortNum);
+
+      // ソート順に応じてナンバー表記の補正
+      synthDataStore.forEach((item, idx) => {
+        item.number = item.numberRaw || `#${String(idx + 1).padStart(2, '0')}`;
+        item.storeIndex = idx;
+      });
+
+      // UIの生成
+      buildTagFilters();
+      renderCards();
+      setupSearchAndFilters();
+
+      // 初期状態でナンバー順最初の作品をセット
+      if (synthDataStore.length > 0) {
+        currentHeroIndex = 0;
+        updateHero(synthDataStore[0]);
+      }
+    }
+
+    // タグフィルターボタン生成
+    function buildTagFilters() {
+      const tagSet = new Set();
+      synthDataStore.forEach(item => item.tags.forEach(t => tagSet.add(t)));
+
+      const container = document.getElementById('tag-filters');
+      container.innerHTML = `
+        <button class="tag-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-400 text-slate-950 border border-cyan-300 transition hover:scale-105" data-tag="all">
+          すべて
+        </button>
+      `;
+
+      tagSet.forEach(tag => {
+        const btn = document.createElement('button');
+        btn.className = 'tag-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/10 text-slate-200 border border-white/15 transition hover:bg-white/20 hover:text-white hover:scale-105';
+        btn.dataset.tag = tag;
+        btn.textContent = tag;
+        container.appendChild(btn);
+      });
+    }
+
+    // カードグリッド描画
+    function renderCards() {
+      const grid = document.getElementById('synth-grid');
+      const countEl = document.getElementById('synth-count');
+      const emptyEl = document.getElementById('empty-state');
+      grid.innerHTML = '';
+
+      const filtered = synthDataStore.filter(item => {
+        const matchesTag = activeTag === 'all' || item.tags.includes(activeTag);
+        const matchesSearch = searchQuery === '' || 
+          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesTag && matchesSearch;
+      });
+
+      countEl.textContent = `${filtered.length}作品`;
+
+      if (filtered.length === 0) {
+        emptyEl.classList.remove('hidden');
+        return;
+      } else {
+        emptyEl.classList.add('hidden');
+      }
+
+      filtered.forEach((item) => {
+        const card = document.createElement('a');
+        card.href = item.file;
+        const isActive = synthDataStore[currentHeroIndex] && synthDataStore[currentHeroIndex].id === item.id;
+        card.className = `synth-card glass-card theme-${item.color} rounded-2xl p-6 flex flex-col justify-between gap-6 relative group ${isActive ? 'active' : ''}`;
+        card.dataset.id = item.id;
+
+        const tagBadges = item.tags.map(t => 
+          `<span class="px-2 py-0.5 text-[11px] font-bold rounded bg-white/10 border border-white/10 text-slate-200">${t}</span>`
+        ).join('');
+
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-black text-cyan-300 tracking-wider">${item.number}</span>
+              <span class="text-2xl transform group-hover:scale-125 transition duration-300">${item.symbol}</span>
+            </div>
+            <h4 class="text-xl font-black text-white group-hover:text-cyan-300 transition">
+              ${item.title}
+            </h4>
+            <p class="text-xs text-slate-300 leading-relaxed font-bold line-clamp-3">
+              ${item.description}
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5 pt-3 border-t border-white/10">
+            ${tagBadges}
+          </div>
+        `;
+
+        // ホバー / タッチでヒーロー更新＆タイマーリセット
+        const handleInteraction = () => {
+          currentHeroIndex = item.storeIndex;
+          updateHeroUI(item);
+          startAutoSlide();
+        };
+
+        card.addEventListener('mouseenter', handleInteraction);
+        card.addEventListener('touchstart', handleInteraction, { passive: true });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // HEROエリアの更新（UI更新のみ）
+    function updateHeroUI(item) {
+      // アクティブカードの表示切り替え
+      document.querySelectorAll('.synth-card').forEach(c => {
+        if (c.dataset.id === item.id) {
+          c.classList.add('active');
+        } else {
+          c.classList.remove('active');
+        }
+      });
+
+      const textContainer = document.getElementById('hero-text-container');
+      const visualBox = document.getElementById('hero-visual-box');
+      
+      textContainer.classList.add('fade-out');
+      visualBox.classList.add('fade-out');
+
+      setTimeout(() => {
+        document.getElementById('hero-number').textContent = `${item.number} SELECTED`;
+        document.getElementById('hero-filename').textContent = item.file;
+        document.getElementById('hero-title').textContent = item.title;
+        document.getElementById('hero-desc').textContent = item.description;
+        document.getElementById('hero-play-btn').setAttribute('href', item.file);
+
+        // タグ生成
+        const tagsContainer = document.getElementById('hero-tags');
+        tagsContainer.innerHTML = item.tags.map(t => 
+          `<span class="px-2.5 py-1 rounded-md bg-white/10 border border-white/15 text-slate-200">${t}</span>`
+        ).join('');
+
+        // シンボル設定
+        const symbolEl = document.getElementById('hero-symbol');
+        symbolEl.textContent = item.symbol;
+        if (item.symbolType === 'kanji') {
+          symbolEl.className = 'text-6xl sm:text-7xl font-serif text-amber-300 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]';
+        } else {
+          symbolEl.className = 'text-6xl sm:text-8xl';
+        }
+
+        textContainer.classList.remove('fade-out');
+        visualBox.classList.remove('fade-out');
+      }, 150);
+    }
+
+    // ヒーロー表示の更新（インデックス指定）
+    function updateHero(item) {
+      updateHeroUI(item);
+    }
+
+    // 次のシンセへ切り替え
+    function nextHero() {
+      if (synthDataStore.length === 0) return;
+      currentHeroIndex = (currentHeroIndex + 1) % synthDataStore.length;
+      updateHeroUI(synthDataStore[currentHeroIndex]);
+    }
+
+    // 前のシンセへ切り替え
+    function prevHero() {
+      if (synthDataStore.length === 0) return;
+      currentHeroIndex = (currentHeroIndex - 1 + synthDataStore.length) % synthDataStore.length;
+      updateHeroUI(synthDataStore[currentHeroIndex]);
+    }
+
+    // 5秒タイマーのセットアップ
+    function startAutoSlide() {
+      if (autoSlideTimer) clearInterval(autoSlideTimer);
+      autoSlideTimer = setInterval(() => {
+        nextHero();
+      }, 5000);
+    }
+
+    // スマホの左右フリック（スワイプ）操作のセットアップ
+    function setupHeroSwipe() {
+      const heroEl = document.getElementById('hero-section');
+      let startX = 0;
+      let startY = 0;
+
+      heroEl.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+
+      heroEl.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+
+        // 横方向へのスワイプが一定距離以上かつ縦スクロールより優先される場合
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          if (diffX < 0) {
+            // 左スワイプ（次へ）
+            nextHero();
+          } else {
+            // 右スワイプ（前へ）
+            prevHero();
+          }
+          startAutoSlide(); // 手動操作後タイマーをリセット
+        }
+      }, { passive: true });
+    }
+
+    // 検索＆フィルターイベント設定
+    function setupSearchAndFilters() {
+      document.getElementById('tag-filters').addEventListener('click', (e) => {
+        const btn = e.target.closest('.tag-btn');
+        if (!btn) return;
+
+        document.querySelectorAll('.tag-btn').forEach(b => {
+          b.className = 'tag-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/10 text-slate-200 border border-white/15 transition hover:bg-white/20 hover:text-white hover:scale-105';
+        });
+        btn.className = 'tag-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-400 text-slate-950 border border-cyan-300 transition hover:scale-105';
+
+        activeTag = btn.dataset.tag;
+        renderCards();
+      });
+
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        renderCards();
+      });
+    }
+  </script>
+</body>
+</html>
