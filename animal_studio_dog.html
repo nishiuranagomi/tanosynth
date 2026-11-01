@@ -891,7 +891,7 @@
 
             pCtx.filter = `brightness(${state.texBrightness}) contrast(${state.texContrast}) saturate(${state.texSaturate}) hue-rotate(${state.texHue}deg)`;
             pCtx.save();
-            pCtx.translate(400 + state.texOffsetX, 450 + state.texOffsetY);
+            pCtx.translate(400 + state.texOffsetX, 350 + state.texOffsetY);
             pCtx.rotate((state.texRotate * Math.PI) / 180);
             pCtx.scale(state.texScale, state.texScale);
             pCtx.drawImage(state.cameraTextureImage, -400, -400, 800, 800);
