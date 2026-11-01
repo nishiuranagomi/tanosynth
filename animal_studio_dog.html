@@ -182,16 +182,32 @@
 
                         <div>
                             <div class="flex justify-between mb-1">
-                                <span>耳の大きさ</span>
-                                <span id="val-earSize" class="text-slate-400">1.0</span>
+                                <span>両目の間隔</span>
+                                <span id="val-eyeSpacing" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('earSize', this.value)" class="w-full">
+                            <input type="range" min="0.6" max="1.5" step="0.05" value="1.0" oninput="updateParam('eyeSpacing', this.value)" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>耳の長さ</span>
+                                <span id="val-earLength" class="text-slate-400">1.0</span>
+                            </div>
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('earLength', this.value)" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>耳の太さ</span>
+                                <span id="val-earWidth" class="text-slate-400">1.0</span>
+                            </div>
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('earWidth', this.value)" class="w-full">
                         </div>
 
                         <div>
                             <div class="flex justify-between mb-1">
                                 <span>耳の角度 (垂れ〜ピン)</span>
-                                <span id="val-earAngle" class="text-slate-400">0</span>
+                                <span id="val-earAngle" class="text-slate-400">0°</span>
                             </div>
                             <input type="range" min="-30" max="30" step="1" value="0" oninput="updateParam('earAngle', this.value)" class="w-full">
                         </div>
@@ -236,6 +252,30 @@
                                 <option value="arc">優しいアーチ眉</option>
                                 <option value="slanted">キリッとした斜め眉</option>
                             </select>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>眉毛の角度</span>
+                                <span id="val-eyebrowAngle" class="text-slate-400">0°</span>
+                            </div>
+                            <input type="range" min="-30" max="30" step="1" value="0" oninput="updateParam('eyebrowAngle', this.value)" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>眉毛の長さ</span>
+                                <span id="val-eyebrowLength" class="text-slate-400">1.0</span>
+                            </div>
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('eyebrowLength', this.value)" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>眉毛の太さ</span>
+                                <span id="val-eyebrowThickness" class="text-slate-400">1.0</span>
+                            </div>
+                            <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" oninput="updateParam('eyebrowThickness', this.value)" class="w-full">
                         </div>
                     </div>
                 </div>
@@ -413,6 +453,23 @@
                                     <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" oninput="updateParam('texContrast', this.value)" class="w-full">
                                 </div>
                             </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>彩度</span>
+                                        <span id="val-texSaturate" class="text-slate-400">1.0</span>
+                                    </div>
+                                    <input type="range" min="0" max="2.5" step="0.05" value="1.0" oninput="updateParam('texSaturate', this.value)" class="w-full">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>色相 (Hue)</span>
+                                        <span id="val-texHue" class="text-slate-400">0°</span>
+                                    </div>
+                                    <input type="range" min="-180" max="180" step="5" value="0" oninput="updateParam('texHue', this.value)" class="w-full">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -484,13 +541,18 @@
             // Anatomy
             limbSpacing: 1.0, // Outer limbs spacing multiplier
             eyeSize: 1.0,
-            earSize: 1.0,
+            eyeSpacing: 1.0,
+            earLength: 1.0,
+            earWidth: 1.0,
             earAngle: 0,
             muzzleWidth: 1.0,
             cheekFluff: 1.0,
             blushIntensity: 0.5,
             hasEyebrows: true,
             eyebrowStyle: 'dot',
+            eyebrowAngle: 0,
+            eyebrowLength: 1.0,
+            eyebrowThickness: 1.0,
 
             // Palette Colors
             primaryColor: '#d97706',
@@ -523,6 +585,8 @@
             texOffsetY: 0,
             texBrightness: 1.0,
             texContrast: 1.0,
+            texSaturate: 1.0,
+            texHue: 0,
             facingMode: 'user',
 
             // Clock
@@ -855,7 +919,7 @@
             patternCanvas.height = 800;
             const pCtx = patternCanvas.getContext('2d');
 
-            pCtx.filter = `brightness(${state.texBrightness}) contrast(${state.texContrast})`;
+            pCtx.filter = `brightness(${state.texBrightness}) contrast(${state.texContrast}) saturate(${state.texSaturate}) hue-rotate(${state.texHue}deg)`;
             pCtx.save();
             pCtx.translate(400 + state.texOffsetX, 400 + state.texOffsetY);
             pCtx.rotate((state.texRotate * Math.PI) / 180);
@@ -980,7 +1044,8 @@
         }
 
         function drawEars(c, isGuide) {
-            const earS = state.earSize;
+            const earL = state.earLength;
+            const earW = state.earWidth;
             const earA = (state.earAngle * Math.PI) / 180;
 
             // Left Ear Outer
@@ -989,17 +1054,17 @@
             c.rotate(-0.3 + earA);
             
             c.beginPath();
-            c.moveTo(-40 * earS, 40 * earS);
-            c.quadraticCurveTo(-50 * earS, -110 * earS, 0, -140 * earS);
-            c.quadraticCurveTo(50 * earS, -110 * earS, 40 * earS, 40 * earS);
+            c.moveTo(-40 * earW, 40 * earL);
+            c.quadraticCurveTo(-50 * earW, -110 * earL, 0, -140 * earL);
+            c.quadraticCurveTo(50 * earW, -110 * earL, 40 * earW, 40 * earL);
             c.closePath();
             fillAndStroke(c, state.primaryColor, isGuide);
 
             // Left Ear Inner
             c.beginPath();
-            c.moveTo(-20 * earS, 20 * earS);
-            c.quadraticCurveTo(-25 * earS, -70 * earS, 0, -90 * earS);
-            c.quadraticCurveTo(25 * earS, -70 * earS, 20 * earS, 20 * earS);
+            c.moveTo(-20 * earW, 20 * earL);
+            c.quadraticCurveTo(-25 * earW, -70 * earL, 0, -90 * earL);
+            c.quadraticCurveTo(25 * earW, -70 * earL, 20 * earW, 20 * earL);
             c.closePath();
             fillAndStroke(c, state.innerEarColor, isGuide);
             c.restore();
@@ -1010,17 +1075,17 @@
             c.rotate(0.3 - earA);
             
             c.beginPath();
-            c.moveTo(-40 * earS, 40 * earS);
-            c.quadraticCurveTo(-50 * earS, -110 * earS, 0, -140 * earS);
-            c.quadraticCurveTo(50 * earS, -110 * earS, 40 * earS, 40 * earS);
+            c.moveTo(-40 * earW, 40 * earL);
+            c.quadraticCurveTo(-50 * earW, -110 * earL, 0, -140 * earL);
+            c.quadraticCurveTo(50 * earW, -110 * earL, 40 * earW, 40 * earL);
             c.closePath();
             fillAndStroke(c, state.primaryColor, isGuide);
 
             // Right Ear Inner
             c.beginPath();
-            c.moveTo(-20 * earS, 20 * earS);
-            c.quadraticCurveTo(-25 * earS, -70 * earS, 0, -90 * earS);
-            c.quadraticCurveTo(25 * earS, -70 * earS, 20 * earS, 20 * earS);
+            c.moveTo(-20 * earW, 20 * earL);
+            c.quadraticCurveTo(-25 * earW, -70 * earL, 0, -90 * earL);
+            c.quadraticCurveTo(25 * earW, -70 * earL, 20 * earW, 20 * earL);
             c.closePath();
             fillAndStroke(c, state.innerEarColor, isGuide);
             c.restore();
@@ -1071,29 +1136,43 @@
             let yOffset = -85;
             if (isSparkly) yOffset = -95;
 
+            const eLen = state.eyebrowLength;
+            const eThick = state.eyebrowThickness;
+            const extraAngleRad = (state.eyebrowAngle * Math.PI) / 180;
+
             // Left Eyebrow
+            c.save();
+            c.translate(-55, yOffset);
+            c.rotate(extraAngleRad);
             c.beginPath();
             if (state.eyebrowStyle === 'dot') {
-                c.ellipse(-55, yOffset, 16, 12, isDroopy ? 0.4 : -0.1, 0, Math.PI * 2);
+                c.ellipse(0, 0, 16 * eLen, 12 * eThick, isDroopy ? 0.4 : -0.1, 0, Math.PI * 2);
             } else if (state.eyebrowStyle === 'arc') {
-                c.arc(-55, yOffset, 18, Math.PI * 1.1, Math.PI * 1.9);
+                c.scale(eLen, eThick);
+                c.arc(0, 0, 18, Math.PI * 1.1, Math.PI * 1.9);
             } else {
-                c.moveTo(-70, yOffset + (isDroopy ? -8 : 8));
-                c.lineTo(-40, yOffset + (isDroopy ? 8 : -8));
+                c.moveTo(-15 * eLen, (isDroopy ? -8 : 8) * eThick);
+                c.lineTo(15 * eLen, (isDroopy ? 8 : -8) * eThick);
             }
             fillAndStroke(c, state.secondaryColor, isGuide);
+            c.restore();
 
             // Right Eyebrow
+            c.save();
+            c.translate(55, yOffset);
+            c.rotate(-extraAngleRad);
             c.beginPath();
             if (state.eyebrowStyle === 'dot') {
-                c.ellipse(55, yOffset, 16, 12, isDroopy ? -0.4 : 0.1, 0, Math.PI * 2);
+                c.ellipse(0, 0, 16 * eLen, 12 * eThick, isDroopy ? -0.4 : 0.1, 0, Math.PI * 2);
             } else if (state.eyebrowStyle === 'arc') {
-                c.arc(55, yOffset, 18, Math.PI * 1.1, Math.PI * 1.9);
+                c.scale(eLen, eThick);
+                c.arc(0, 0, 18, Math.PI * 1.1, Math.PI * 1.9);
             } else {
-                c.moveTo(40, yOffset + (isDroopy ? 8 : -8));
-                c.lineTo(70, yOffset + (isDroopy ? -8 : 8));
+                c.moveTo(-15 * eLen, (isDroopy ? 8 : -8) * eThick);
+                c.lineTo(15 * eLen, (isDroopy ? -8 : 8) * eThick);
             }
             fillAndStroke(c, state.secondaryColor, isGuide);
+            c.restore();
         }
 
         function drawMuzzleAndMouth(c, isGuide) {
@@ -1104,10 +1183,10 @@
             c.ellipse(0, 30, mW, 50, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.secondaryColor, isGuide);
 
-            // Nose
+            // Nose (Texture transparent fill)
             c.beginPath();
             c.ellipse(0, 5, 20, 14, 0, 0, Math.PI * 2);
-            fillAndStroke(c, state.noseColor, isGuide, true);
+            fillAndStroke(c, state.noseColor, isGuide, false);
 
             // Mouth Seam Line
             c.beginPath();
@@ -1142,7 +1221,7 @@
 
         function drawEyes(c, isGuide) {
             const eS = state.eyeSize;
-            const eyeX = 60;
+            const eyeX = 60 * state.eyeSpacing;
             const eyeY = -25;
 
             const isHappy = state.isAnimationMode && state.animState === 'happy';
@@ -1175,14 +1254,14 @@
                 return;
             }
 
-            // Pupils
+            // Pupils (Texture transparent fill)
             c.beginPath();
             c.ellipse(-eyeX, eyeY, 16 * eS, (isSparkly ? 22 : 18) * eS, 0, 0, Math.PI * 2);
-            fillAndStroke(c, state.eyeColor, isGuide, true);
+            fillAndStroke(c, state.eyeColor, isGuide, false);
 
             c.beginPath();
             c.ellipse(eyeX, eyeY, 16 * eS, (isSparkly ? 22 : 18) * eS, 0, 0, Math.PI * 2);
-            fillAndStroke(c, state.eyeColor, isGuide, true);
+            fillAndStroke(c, state.eyeColor, isGuide, false);
 
             // Gloss Highlights
             if (state.lineStyle !== 'coloring' && !isGuide) {
@@ -1314,18 +1393,25 @@
                 state.secondaryColor = '#fffbeb';
                 state.limbSpacing = 1.0;
                 state.eyeSize = 1.0;
-                state.earSize = 1.0;
+                state.eyeSpacing = 1.0;
+                state.earLength = 1.0;
+                state.earWidth = 1.0;
                 state.earAngle = 0;
                 state.muzzleWidth = 1.0;
                 state.cheekFluff = 1.0;
                 state.hasEyebrows = true;
                 state.eyebrowStyle = 'dot';
+                state.eyebrowAngle = 0;
+                state.eyebrowLength = 1.0;
+                state.eyebrowThickness = 1.0;
             } else if (breed === 'corgi') {
                 state.primaryColor = '#f59e0b';
                 state.secondaryColor = '#ffffff';
                 state.limbSpacing = 1.15;
                 state.eyeSize = 1.15;
-                state.earSize = 1.5;
+                state.eyeSpacing = 1.0;
+                state.earLength = 1.5;
+                state.earWidth = 1.3;
                 state.earAngle = 10;
                 state.muzzleWidth = 1.1;
                 state.cheekFluff = 1.25;
@@ -1335,7 +1421,9 @@
                 state.secondaryColor = '#fef3c7';
                 state.limbSpacing = 1.05;
                 state.eyeSize = 1.05;
-                state.earSize = 1.4;
+                state.eyeSpacing = 1.05;
+                state.earLength = 1.4;
+                state.earWidth = 1.2;
                 state.earAngle = -25;
                 state.muzzleWidth = 1.3;
                 state.cheekFluff = 1.3;
@@ -1345,7 +1433,9 @@
                 state.secondaryColor = '#fef3c7';
                 state.limbSpacing = 1.25;
                 state.eyeSize = 1.2;
-                state.earSize = 1.3;
+                state.eyeSpacing = 1.1;
+                state.earLength = 1.3;
+                state.earWidth = 1.4;
                 state.earAngle = 18;
                 state.muzzleWidth = 1.4;
                 state.cheekFluff = 1.4;
@@ -1356,12 +1446,17 @@
                 state.eyeColor = '#38bdf8';
                 state.limbSpacing = 1.0;
                 state.eyeSize = 0.95;
-                state.earSize = 1.1;
+                state.eyeSpacing = 0.95;
+                state.earLength = 1.1;
+                state.earWidth = 1.0;
                 state.earAngle = 0;
                 state.muzzleWidth = 1.0;
                 state.cheekFluff = 1.1;
                 state.hasEyebrows = true;
                 state.eyebrowStyle = 'slanted';
+                state.eyebrowAngle = 5;
+                state.eyebrowLength = 1.1;
+                state.eyebrowThickness = 1.0;
             }
 
             syncControlInputs();
@@ -1381,7 +1476,7 @@
             } else if (!isNaN(val) && key !== 'eyebrowStyle' && key !== 'glasses' && key !== 'hat' && key !== 'neck') {
                 state[key] = parseFloat(val);
                 const display = document.getElementById(`val-${key}`);
-                if (display) display.textContent = val + (key === 'texRotate' ? '°' : '');
+                if (display) display.textContent = val + (key === 'texRotate' || key === 'texHue' || key === 'earAngle' || key === 'eyebrowAngle' ? '°' : '');
             } else {
                 state[key] = val;
             }
@@ -1453,7 +1548,8 @@
             const colors = ['#d97706', '#f59e0b', '#fbbf24', '#78350f', '#475569', '#1e293b', '#e11d48'];
             state.primaryColor = colors[Math.floor(Math.random() * colors.length)];
             state.eyeSize = (0.7 + Math.random() * 0.7).toFixed(2);
-            state.earSize = (0.7 + Math.random() * 0.8).toFixed(2);
+            state.earLength = (0.7 + Math.random() * 0.8).toFixed(2);
+            state.earWidth = (0.7 + Math.random() * 0.8).toFixed(2);
             state.cheekFluff = (0.8 + Math.random() * 0.6).toFixed(2);
             state.limbSpacing = (0.9 + Math.random() * 0.4).toFixed(2);
             state.hasEyebrows = Math.random() > 0.3;
