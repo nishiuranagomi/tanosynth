@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- ======================================================= -->
-  <!-- 🎵 Web Synth ポータル用メタデータ (ここを追加してください) -->
+  <!-- 🎵 Web Synth ポータル用メタデータ -->
   <!-- ======================================================= -->
-<meta name="synth-hidden" content="true">
+  <meta name="synth-hidden" content="true">
   <meta name="synth-title" content="アニマルスタジオ「Dog編」">
   <meta name="synth-description" content="動物の塗り絵を作成して、印刷したものに色を塗りましょう！">
   <meta name="synth-tags" content="Paint, Capture, Animal">
-  <meta name="synth-color" content="gold"> <!-- 選択肢: pink, cyan, gold, purple, emerald -->
-  <meta name="synth-symbol" content="塗"> <!-- カード右上に表示する文字または絵文字 -->
-  <meta name="synth-symbol-type" content="kanji"> <!-- kanji または emoji -->
-  <meta name="synth-number" content="#04"> <!-- ナンバリング（省略可） -->
+  <meta name="synth-color" content="gold">
+  <meta name="synth-symbol" content="塗">
+  <meta name="synth-symbol-type" content="kanji">
+  <meta name="synth-number" content="#04">
   <!-- ======================================================= -->
     
     <title>Animal Studio -Dog-</title>
@@ -169,7 +169,7 @@
                                 <span>手足の外側配置（外開き感）</span>
                                 <span id="val-limbSpacing" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.7" max="1.5" step="0.05" value="1.0" oninput="updateParam('limbSpacing', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.2" step="0.05" value="1.0" oninput="updateParam('limbSpacing', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -217,7 +217,7 @@
                                 <span>マズル (口元) の幅</span>
                                 <span id="val-muzzleWidth" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.6" max="1.6" step="0.05" value="1.0" oninput="updateParam('muzzleWidth', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.5" step="0.05" value="1.0" oninput="updateParam('muzzleWidth', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -225,7 +225,7 @@
                                 <span>ほっぺのふっくら感</span>
                                 <span id="val-cheekFluff" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.6" step="0.05" value="1.0" oninput="updateParam('cheekFluff', this.value)" class="w-full">
+                            <input type="range" min="0.8" max="1.2" step="0.05" value="1.0" oninput="updateParam('cheekFluff', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -239,7 +239,7 @@
 
                     <div class="space-y-3 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold">麻麻・眉毛の表示</span>
+                            <span class="font-bold">眉毛の表示</span>
                             <input type="checkbox" id="eyebrowToggle" onchange="updateParam('hasEyebrows', this.checked)" checked class="w-4 h-4 accent-orange-500">
                         </div>
 
@@ -635,9 +635,6 @@
             switchTab('custom');
         };
 
-        /**
-         * STREAMING_CHUNK:Implementing main animation frame ticker...
-         */
         function animationLoop(now) {
             const delta = (now - state.lastFrameTime) / 1000;
             state.lastFrameTime = now;
@@ -736,11 +733,7 @@
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Implementing bark trigger and audio synthesizers...
-         */
         function triggerBark() {
-            // STRICT RULE: Strictly no bark sound or mouth pop during SLEEPY mode
             if (state.animState === 'sleepy') return;
 
             state.isBarking = true;
@@ -801,9 +794,6 @@
             osc.stop(now + 0.18);
         }
 
-        /**
-         * STREAMING_CHUNK:Building procedural vector dog rendering engine...
-         */
         function renderDogCanvas(targetCtx, width, height, isGuide) {
             const isColoring = state.lineStyle === 'coloring';
             
@@ -846,7 +836,7 @@
 
             setupContextStyle(targetCtx, isGuide);
 
-            // Draw Layers in strict Z-index order
+            // Draw Layers
             drawBackFeet(targetCtx, isGuide);
             drawChestBody(targetCtx, isGuide);
             drawFrontArms(targetCtx, isGuide);
@@ -871,7 +861,7 @@
 
             if (isGuide) {
                 c.lineWidth = 4;
-                c.strokeStyle = '#00FF66'; // High-visibility Neon Green Guide Line
+                c.strokeStyle = '#00FF66';
                 c.setLineDash([10, 6]);
             } else {
                 c.setLineDash([]);
@@ -888,9 +878,6 @@
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Implementing fill and camera texture mapping helpers...
-         */
         function fillAndStroke(c, fillColor, isGuide, forceSolid = false) {
             if (isGuide) {
                 c.stroke();
@@ -935,22 +922,19 @@
                     const patternMatrix = currentMatrix.inverse().multiply(currentDogMatrix).translate(-400, -400);
                     pattern.setTransform(patternMatrix);
                 } catch (e) {
-                    // Fallback for matrix calculation
+                    // Fallback
                 }
             }
 
             return pattern;
         }
 
-        /**
-         * STREAMING_CHUNK:Drawing wide outer limbs, body, and head parts...
-         */
         function drawBackFeet(c, isGuide) {
             const spacing = 145 * state.cheekFluff * state.limbSpacing;
             const isSleepy = state.isAnimationMode && state.animState === 'sleepy';
             const footY = isSleepy ? 250 : 265;
 
-            // Left Back Foot (Positioned further outward)
+            // Left Back Foot
             c.save();
             c.translate(-spacing, footY);
             c.rotate(-0.15);
@@ -959,7 +943,7 @@
             fillAndStroke(c, state.primaryColor, isGuide);
             c.restore();
 
-            // Right Back Foot (Positioned further outward)
+            // Right Back Foot
             c.save();
             c.translate(spacing, footY);
             c.rotate(0.15);
@@ -970,12 +954,10 @@
         }
 
         function drawChestBody(c, isGuide) {
-            // Main Body Torso
             c.beginPath();
             c.ellipse(0, 215, 150 * state.cheekFluff, 175, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.primaryColor, isGuide);
 
-            // White Chest Fur Patch
             c.beginPath();
             c.ellipse(0, 225, 80 * state.cheekFluff, 125, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.secondaryColor, isGuide);
@@ -990,41 +972,34 @@
             let leftAngle = -0.3;
             let rightAngle = 0.3;
 
-            // Reactive Limb Pose Animation
             if (state.isAnimationMode && !isGuide) {
                 if (state.isBarking) {
-                    // Banzi / Hands up stance
                     armY = 125;
                     leftArmX = -spacing - 10;
                     rightArmX = spacing + 10;
                     leftAngle = -2.2;
                     rightAngle = 2.2;
                 } else if (state.animState === 'happy') {
-                    // Joyful swinging
                     armY = 180 + Math.sin(state.time * 10) * 12;
                     leftAngle = -0.3 + Math.sin(state.time * 10) * 0.2;
                     rightAngle = 0.3 - Math.sin(state.time * 10) * 0.2;
                 } else if (state.animState === 'sparkly') {
-                    // Hugging chest
                     leftArmX = -65;
                     rightArmX = 65;
                     armY = 165;
                     leftAngle = 0.8;
                     rightAngle = -0.8;
                 } else if (state.animState === 'droopy') {
-                    // Limp drooping
                     armY = 210;
                     leftAngle = 0.1;
                     rightAngle = -0.1;
                 } else if (state.animState === 'sleepy') {
-                    // Laying flat
                     armY = 225;
                     leftAngle = 1.2;
                     rightAngle = -1.2;
                 }
             }
 
-            // Left Front Arm / Paw
             c.save();
             c.translate(leftArmX, armY);
             c.rotate(leftAngle);
@@ -1033,7 +1008,6 @@
             fillAndStroke(c, state.primaryColor, isGuide);
             c.restore();
 
-            // Right Front Arm / Paw
             c.save();
             c.translate(rightArmX, armY);
             c.rotate(rightAngle);
@@ -1044,7 +1018,7 @@
         }
 
         function drawEars(c, isGuide) {
-            const earL = state.earLength;
+            const earL = state.earLength * 0.7; // 0.7x補正
             const earW = state.earWidth;
             const earA = (state.earAngle * Math.PI) / 180;
 
@@ -1100,17 +1074,14 @@
         function drawCheekPatches(c, isGuide) {
             const cheekWidth = 90 * state.cheekFluff;
 
-            // Left Cheek White Patch
             c.beginPath();
             c.ellipse(-75 * state.cheekFluff, 25, cheekWidth * 0.7, 65, 0.2, 0, Math.PI * 2);
             fillAndStroke(c, state.secondaryColor, isGuide);
 
-            // Right Cheek White Patch
             c.beginPath();
             c.ellipse(75 * state.cheekFluff, 25, cheekWidth * 0.7, 65, -0.2, 0, Math.PI * 2);
             fillAndStroke(c, state.secondaryColor, isGuide);
 
-            // Blush
             if (state.blushIntensity > 0 && state.lineStyle !== 'coloring' && !isGuide) {
                 c.save();
                 c.globalAlpha = state.blushIntensity * 0.5;
@@ -1151,8 +1122,9 @@
                 c.scale(eLen, eThick);
                 c.arc(0, 0, 18, Math.PI * 1.1, Math.PI * 1.9);
             } else {
-                c.moveTo(-15 * eLen, (isDroopy ? -8 : 8) * eThick);
-                c.lineTo(15 * eLen, (isDroopy ? 8 : -8) * eThick);
+                // 水平（つり眉側+25°補正でデフォルト水平）
+                c.moveTo(-15 * eLen, (isDroopy ? -8 : 0) * eThick);
+                c.lineTo(15 * eLen, (isDroopy ? 8 : 0) * eThick);
             }
             fillAndStroke(c, state.secondaryColor, isGuide);
             c.restore();
@@ -1168,27 +1140,25 @@
                 c.scale(eLen, eThick);
                 c.arc(0, 0, 18, Math.PI * 1.1, Math.PI * 1.9);
             } else {
-                c.moveTo(-15 * eLen, (isDroopy ? 8 : -8) * eThick);
-                c.lineTo(15 * eLen, (isDroopy ? -8 : 8) * eThick);
+                // 水平（つり眉側+25°補正でデフォルト水平）
+                c.moveTo(-15 * eLen, (isDroopy ? 8 : 0) * eThick);
+                c.lineTo(15 * eLen, (isDroopy ? -8 : 0) * eThick);
             }
             fillAndStroke(c, state.secondaryColor, isGuide);
             c.restore();
         }
 
         function drawMuzzleAndMouth(c, isGuide) {
-            const mW = 65 * state.muzzleWidth;
+            const mW = 65 * state.muzzleWidth * 1.1; // 1.1x補正
 
-            // White Muzzle Area
             c.beginPath();
             c.ellipse(0, 30, mW, 50, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.secondaryColor, isGuide);
 
-            // Nose (Texture transparent fill)
             c.beginPath();
             c.ellipse(0, 5, 20, 14, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.noseColor, isGuide, false);
 
-            // Mouth Seam Line
             c.beginPath();
             c.moveTo(0, 18);
             c.lineTo(0, 32);
@@ -1206,7 +1176,6 @@
                 c.closePath();
                 fillAndStroke(c, '#991b1b', false, true);
 
-                // Tongue
                 c.beginPath();
                 c.ellipse(0, 32 + openH * 0.7, 12, 10, 0, 0, Math.PI * 2);
                 fillAndStroke(c, '#fb7185', false, true);
@@ -1220,7 +1189,7 @@
         }
 
         function drawEyes(c, isGuide) {
-            const eS = state.eyeSize;
+            const eS = state.eyeSize * 1.2; // 1.2x補正
             const eyeX = 60 * state.eyeSpacing;
             const eyeY = -25;
 
@@ -1254,7 +1223,6 @@
                 return;
             }
 
-            // Pupils (Texture transparent fill)
             c.beginPath();
             c.ellipse(-eyeX, eyeY, 16 * eS, (isSparkly ? 22 : 18) * eS, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.eyeColor, isGuide, false);
@@ -1263,7 +1231,6 @@
             c.ellipse(eyeX, eyeY, 16 * eS, (isSparkly ? 22 : 18) * eS, 0, 0, Math.PI * 2);
             fillAndStroke(c, state.eyeColor, isGuide, false);
 
-            // Gloss Highlights
             if (state.lineStyle !== 'coloring' && !isGuide) {
                 c.fillStyle = '#ffffff';
                 
@@ -1278,7 +1245,6 @@
         }
 
         function drawAccessories(c) {
-            // Glasses
             if (state.glasses === 'round') {
                 c.beginPath();
                 c.arc(-60, -25, 32, 0, Math.PI * 2);
@@ -1300,7 +1266,6 @@
                 c.stroke();
             }
 
-            // Hats
             if (state.hat === 'party') {
                 c.beginPath();
                 c.moveTo(0, -240);
@@ -1321,7 +1286,6 @@
                 fillAndStroke(c, '#eab308', false);
             }
 
-            // Collars
             if (state.neck === 'collar') {
                 c.beginPath();
                 c.roundRect(-80, 110, 160, 24, 12);
@@ -1384,9 +1348,6 @@
             }
         }
 
-        /**
-         * STREAMING_CHUNK:Implementing breed presets and controls sync...
-         */
         function applyBreed(breed) {
             if (breed === 'shiba') {
                 state.primaryColor = '#d97706';
@@ -1414,7 +1375,7 @@
                 state.earWidth = 1.3;
                 state.earAngle = 10;
                 state.muzzleWidth = 1.1;
-                state.cheekFluff = 1.25;
+                state.cheekFluff = 1.2;
                 state.hasEyebrows = false;
             } else if (breed === 'golden') {
                 state.primaryColor = '#fbbf24';
@@ -1425,20 +1386,20 @@
                 state.earLength = 1.4;
                 state.earWidth = 1.2;
                 state.earAngle = -25;
-                state.muzzleWidth = 1.3;
-                state.cheekFluff = 1.3;
+                state.muzzleWidth = 1.2;
+                state.cheekFluff = 1.2;
                 state.hasEyebrows = false;
             } else if (breed === 'french') {
                 state.primaryColor = '#78350f';
                 state.secondaryColor = '#fef3c7';
-                state.limbSpacing = 1.25;
+                state.limbSpacing = 1.2;
                 state.eyeSize = 1.2;
                 state.eyeSpacing = 1.1;
                 state.earLength = 1.3;
                 state.earWidth = 1.4;
                 state.earAngle = 18;
-                state.muzzleWidth = 1.4;
-                state.cheekFluff = 1.4;
+                state.muzzleWidth = 1.3;
+                state.cheekFluff = 1.2;
                 state.hasEyebrows = false;
             } else if (breed === 'husky') {
                 state.primaryColor = '#475569';
@@ -1550,16 +1511,13 @@
             state.eyeSize = (0.7 + Math.random() * 0.7).toFixed(2);
             state.earLength = (0.7 + Math.random() * 0.8).toFixed(2);
             state.earWidth = (0.7 + Math.random() * 0.8).toFixed(2);
-            state.cheekFluff = (0.8 + Math.random() * 0.6).toFixed(2);
-            state.limbSpacing = (0.9 + Math.random() * 0.4).toFixed(2);
+            state.cheekFluff = (0.8 + Math.random() * 0.4).toFixed(2);
+            state.limbSpacing = (0.7 + Math.random() * 0.4).toFixed(2);
             state.hasEyebrows = Math.random() > 0.3;
             syncControlInputs();
             showToast('おまかせ犬アバターを生成しました 🎲');
         }
 
-        /**
-         * STREAMING_CHUNK:Implementing live camera capture and overlay guide...
-         */
         async function toggleCamera() {
             const video = document.getElementById('cameraVideo');
             const placeholder = document.getElementById('cameraPlaceholder');
@@ -1638,18 +1596,13 @@
             showToast('カメラテクスチャを消去しました');
         }
 
-        /**
-         * STREAMING_CHUNK:Implementing A4 printable coloring book page generation...
-         */
         function printColoringPage() {
-            // Render canvas in strict coloring book mode
             const prevStyle = state.lineStyle;
             state.lineStyle = 'coloring';
             renderDogCanvas(ctx, 800, 800, false);
             const dataUrl = canvas.toDataURL('image/png');
             state.lineStyle = prevStyle;
 
-            // Open dedicated print popup window
             const printWin = window.open('', '_blank');
             if (!printWin) {
                 showToast('ポップアップブロックを解除して再試行してください');
@@ -1743,9 +1696,6 @@
             showToast('印刷用ぬりえウィンドウを開きました 🖨️');
         }
 
-        /**
-         * EXPORTS AND TOAST MESSAGES
-         */
         function downloadPNG() {
             const link = document.createElement('a');
             link.download = `procedural-dog-${Date.now()}.png`;
