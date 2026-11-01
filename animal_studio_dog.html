@@ -101,6 +101,15 @@
                 <span>🎲 おまかせ生成</span>
             </button>
 
+            <button onclick="exportJSON()" class="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-bold transition shadow-md flex items-center space-x-1" title="設定を名前を付けてJSON保存">
+                <span>💾 Save</span>
+            </button>
+
+            <button onclick="triggerLoadJSON()" class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-lg text-xs font-bold transition shadow-md flex items-center space-x-1" title="JSON設定ファイルを読み込み">
+                <span>📂 Load</span>
+            </button>
+            <input type="file" id="jsonFileInput" accept=".json" onchange="importJSON(event)" class="hidden">
+
             <button onclick="toggleCanvasBg()" class="p-2 text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-lg text-xs transition border border-slate-700" title="背景色切り替え">
                 🎨
             </button>
@@ -169,7 +178,7 @@
                                 <span>手足の外側配置（外開き感）</span>
                                 <span id="val-limbSpacing" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.2" step="0.05" value="1.0" oninput="updateParam('limbSpacing', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.2" step="0.05" value="1.0" id="input-limbSpacing" oninput="updateParam('limbSpacing', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -177,7 +186,7 @@
                                 <span>目の大きさ</span>
                                 <span id="val-eyeSize" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('eyeSize', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" id="input-eyeSize" oninput="updateParam('eyeSize', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -185,7 +194,7 @@
                                 <span>両目の間隔</span>
                                 <span id="val-eyeSpacing" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.6" max="1.5" step="0.05" value="1.0" oninput="updateParam('eyeSpacing', this.value)" class="w-full">
+                            <input type="range" min="0.6" max="1.5" step="0.05" value="1.0" id="input-eyeSpacing" oninput="updateParam('eyeSpacing', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -193,7 +202,7 @@
                                 <span>耳の長さ</span>
                                 <span id="val-earLength" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('earLength', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" id="input-earLength" oninput="updateParam('earLength', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -201,7 +210,7 @@
                                 <span>耳の太さ</span>
                                 <span id="val-earWidth" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('earWidth', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" id="input-earWidth" oninput="updateParam('earWidth', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -209,7 +218,7 @@
                                 <span>耳の角度 (垂れ〜ピン)</span>
                                 <span id="val-earAngle" class="text-slate-400">0°</span>
                             </div>
-                            <input type="range" min="-30" max="30" step="1" value="0" oninput="updateParam('earAngle', this.value)" class="w-full">
+                            <input type="range" min="-30" max="30" step="1" value="0" id="input-earAngle" oninput="updateParam('earAngle', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -217,7 +226,7 @@
                                 <span>マズル (口元) の幅</span>
                                 <span id="val-muzzleWidth" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.5" step="0.05" value="1.0" oninput="updateParam('muzzleWidth', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.5" step="0.05" value="1.0" id="input-muzzleWidth" oninput="updateParam('muzzleWidth', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -225,7 +234,7 @@
                                 <span>ほっぺのふっくら感</span>
                                 <span id="val-cheekFluff" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.8" max="1.2" step="0.05" value="1.0" oninput="updateParam('cheekFluff', this.value)" class="w-full">
+                            <input type="range" min="0.8" max="1.2" step="0.05" value="1.0" id="input-cheekFluff" oninput="updateParam('cheekFluff', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -233,7 +242,7 @@
                                 <span>チーク (赤み) 強さ</span>
                                 <span id="val-blushIntensity" class="text-slate-400">0.5</span>
                             </div>
-                            <input type="range" min="0" max="1" step="0.05" value="0.5" oninput="updateParam('blushIntensity', this.value)" class="w-full">
+                            <input type="range" min="0" max="1" step="0.05" value="0.5" id="input-blushIntensity" oninput="updateParam('blushIntensity', this.value)" class="w-full">
                         </div>
                     </div>
 
@@ -259,7 +268,7 @@
                                 <span>眉毛の角度</span>
                                 <span id="val-eyebrowAngle" class="text-slate-400">0°</span>
                             </div>
-                            <input type="range" min="-30" max="30" step="1" value="0" oninput="updateParam('eyebrowAngle', this.value)" class="w-full">
+                            <input type="range" min="-30" max="30" step="1" value="0" id="input-eyebrowAngle" oninput="updateParam('eyebrowAngle', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -267,7 +276,7 @@
                                 <span>眉毛の長さ</span>
                                 <span id="val-eyebrowLength" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" oninput="updateParam('eyebrowLength', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="1.8" step="0.05" value="1.0" id="input-eyebrowLength" oninput="updateParam('eyebrowLength', this.value)" class="w-full">
                         </div>
 
                         <div>
@@ -275,7 +284,7 @@
                                 <span>眉毛の太さ</span>
                                 <span id="val-eyebrowThickness" class="text-slate-400">1.0</span>
                             </div>
-                            <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" oninput="updateParam('eyebrowThickness', this.value)" class="w-full">
+                            <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" id="input-eyebrowThickness" oninput="updateParam('eyebrowThickness', this.value)" class="w-full">
                         </div>
                     </div>
                 </div>
@@ -409,7 +418,7 @@
                                     <span>拡大・縮小</span>
                                     <span id="val-texScale" class="text-slate-400">1.0</span>
                                 </div>
-                                <input type="range" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateParam('texScale', this.value)" class="w-full">
+                                <input type="range" min="0.5" max="3.0" step="0.1" value="1.0" id="input-texScale" oninput="updateParam('texScale', this.value)" class="w-full">
                             </div>
 
                             <div>
@@ -417,7 +426,7 @@
                                     <span>回転角度</span>
                                     <span id="val-texRotate" class="text-slate-400">0°</span>
                                 </div>
-                                <input type="range" min="-180" max="180" step="5" value="0" oninput="updateParam('texRotate', this.value)" class="w-full">
+                                <input type="range" min="-180" max="180" step="5" value="0" id="input-texRotate" oninput="updateParam('texRotate', this.value)" class="w-full">
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
@@ -426,14 +435,14 @@
                                         <span>位置 X</span>
                                         <span id="val-texOffsetX" class="text-slate-400">0</span>
                                     </div>
-                                    <input type="range" min="-150" max="150" step="5" value="0" oninput="updateParam('texOffsetX', this.value)" class="w-full">
+                                    <input type="range" min="-150" max="150" step="5" value="0" id="input-texOffsetX" oninput="updateParam('texOffsetX', this.value)" class="w-full">
                                 </div>
                                 <div>
                                     <div class="flex justify-between mb-1">
                                         <span>位置 Y</span>
                                         <span id="val-texOffsetY" class="text-slate-400">0</span>
                                     </div>
-                                    <input type="range" min="-150" max="150" step="5" value="0" oninput="updateParam('texOffsetY', this.value)" class="w-full">
+                                    <input type="range" min="-150" max="150" step="5" value="0" id="input-texOffsetY" oninput="updateParam('texOffsetY', this.value)" class="w-full">
                                 </div>
                             </div>
 
@@ -443,14 +452,14 @@
                                         <span>明るさ</span>
                                         <span id="val-texBrightness" class="text-slate-400">1.0</span>
                                     </div>
-                                    <input type="range" min="0.4" max="1.8" step="0.05" value="1.0" oninput="updateParam('texBrightness', this.value)" class="w-full">
+                                    <input type="range" min="0.4" max="1.8" step="0.05" value="1.0" id="input-texBrightness" oninput="updateParam('texBrightness', this.value)" class="w-full">
                                 </div>
                                 <div>
                                     <div class="flex justify-between mb-1">
                                         <span>コントラスト</span>
                                         <span id="val-texContrast" class="text-slate-400">1.0</span>
                                     </div>
-                                    <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" oninput="updateParam('texContrast', this.value)" class="w-full">
+                                    <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" id="input-texContrast" oninput="updateParam('texContrast', this.value)" class="w-full">
                                 </div>
                             </div>
 
@@ -460,14 +469,14 @@
                                         <span>彩度</span>
                                         <span id="val-texSaturate" class="text-slate-400">1.0</span>
                                     </div>
-                                    <input type="range" min="0" max="2.5" step="0.05" value="1.0" oninput="updateParam('texSaturate', this.value)" class="w-full">
+                                    <input type="range" min="0" max="2.5" step="0.05" value="1.0" id="input-texSaturate" oninput="updateParam('texSaturate', this.value)" class="w-full">
                                 </div>
                                 <div>
                                     <div class="flex justify-between mb-1">
                                         <span>色相 (Hue)</span>
                                         <span id="val-texHue" class="text-slate-400">0°</span>
                                     </div>
-                                    <input type="range" min="-180" max="180" step="5" value="0" oninput="updateParam('texHue', this.value)" class="w-full">
+                                    <input type="range" min="-180" max="180" step="5" value="0" id="input-texHue" oninput="updateParam('texHue', this.value)" class="w-full">
                                 </div>
                             </div>
                         </div>
@@ -836,8 +845,7 @@
 
             setupContextStyle(targetCtx, isGuide);
 
-            // Draw Layers
-            drawBackFeet(targetCtx, isGuide);
+            // Draw Layers (後ろ足は削除、前足のみ描画)
             drawChestBody(targetCtx, isGuide);
             drawFrontArms(targetCtx, isGuide);
             drawEars(targetCtx, isGuide);
@@ -929,30 +937,6 @@
             return pattern;
         }
 
-        function drawBackFeet(c, isGuide) {
-            const spacing = 145 * state.cheekFluff * state.limbSpacing;
-            const isSleepy = state.isAnimationMode && state.animState === 'sleepy';
-            const footY = isSleepy ? 250 : 265;
-
-            // Left Back Foot
-            c.save();
-            c.translate(-spacing, footY);
-            c.rotate(-0.15);
-            c.beginPath();
-            c.ellipse(0, 0, 32, 22, 0, 0, Math.PI * 2);
-            fillAndStroke(c, state.primaryColor, isGuide);
-            c.restore();
-
-            // Right Back Foot
-            c.save();
-            c.translate(spacing, footY);
-            c.rotate(0.15);
-            c.beginPath();
-            c.ellipse(0, 0, 32, 22, 0, 0, Math.PI * 2);
-            fillAndStroke(c, state.primaryColor, isGuide);
-            c.restore();
-        }
-
         function drawChestBody(c, isGuide) {
             c.beginPath();
             c.ellipse(0, 215, 150 * state.cheekFluff, 175, 0, 0, Math.PI * 2);
@@ -1018,7 +1002,7 @@
         }
 
         function drawEars(c, isGuide) {
-            const earL = state.earLength * 0.7; // 0.7x補正
+            const earL = state.earLength * 0.7;
             const earW = state.earWidth;
             const earA = (state.earAngle * Math.PI) / 180;
 
@@ -1122,7 +1106,6 @@
                 c.scale(eLen, eThick);
                 c.arc(0, 0, 18, Math.PI * 1.1, Math.PI * 1.9);
             } else {
-                // 水平（つり眉側+25°補正でデフォルト水平）
                 c.moveTo(-15 * eLen, (isDroopy ? -8 : 0) * eThick);
                 c.lineTo(15 * eLen, (isDroopy ? 8 : 0) * eThick);
             }
@@ -1140,7 +1123,6 @@
                 c.scale(eLen, eThick);
                 c.arc(0, 0, 18, Math.PI * 1.1, Math.PI * 1.9);
             } else {
-                // 水平（つり眉側+25°補正でデフォルト水平）
                 c.moveTo(-15 * eLen, (isDroopy ? 8 : 0) * eThick);
                 c.lineTo(15 * eLen, (isDroopy ? -8 : 0) * eThick);
             }
@@ -1149,7 +1131,7 @@
         }
 
         function drawMuzzleAndMouth(c, isGuide) {
-            const mW = 65 * state.muzzleWidth * 1.1; // 1.1x補正
+            const mW = 65 * state.muzzleWidth * 1.1;
 
             c.beginPath();
             c.ellipse(0, 30, mW, 50, 0, 0, Math.PI * 2);
@@ -1189,7 +1171,7 @@
         }
 
         function drawEyes(c, isGuide) {
-            const eS = state.eyeSize * 1.2; // 1.2x補正
+            const eS = state.eyeSize * 1.2;
             const eyeX = 60 * state.eyeSpacing;
             const eyeY = -25;
 
@@ -1424,11 +1406,127 @@
         }
 
         function syncControlInputs() {
-            document.getElementById('primaryColor').value = state.primaryColor;
-            document.getElementById('secondaryColor').value = state.secondaryColor;
-            document.getElementById('eyeColor').value = state.eyeColor;
-            document.getElementById('eyebrowToggle').checked = state.hasEyebrows;
-            document.getElementById('eyebrowStyleSelect').value = state.eyebrowStyle;
+            // Color inputs
+            const colorKeys = ['primaryColor', 'secondaryColor', 'innerEarColor', 'eyeColor', 'noseColor', 'bgColor'];
+            colorKeys.forEach(k => {
+                const el = document.getElementById(k);
+                if (el && state[k]) el.value = state[k];
+            });
+
+            // Range inputs & value displays
+            const rangeKeys = [
+                'limbSpacing', 'eyeSize', 'eyeSpacing', 'earLength', 'earWidth', 'earAngle',
+                'muzzleWidth', 'cheekFluff', 'blushIntensity', 'eyebrowAngle', 'eyebrowLength', 'eyebrowThickness',
+                'texScale', 'texRotate', 'texOffsetX', 'texOffsetY', 'texBrightness', 'texContrast', 'texSaturate', 'texHue'
+            ];
+            rangeKeys.forEach(k => {
+                const inp = document.getElementById(`input-${k}`);
+                if (inp) inp.value = state[k];
+                const valDisp = document.getElementById(`val-${k}`);
+                if (valDisp) {
+                    valDisp.textContent = state[k] + (['texRotate', 'texHue', 'earAngle', 'eyebrowAngle'].includes(k) ? '°' : '');
+                }
+            });
+
+            // Eyebrow toggle & select
+            const ebToggle = document.getElementById('eyebrowToggle');
+            if (ebToggle) ebToggle.checked = state.hasEyebrows;
+            const ebSelect = document.getElementById('eyebrowStyleSelect');
+            if (ebSelect) ebSelect.value = state.eyebrowStyle;
+
+            // Accessories
+            const glassesSelect = document.getElementById('glassesSelect');
+            if (glassesSelect) glassesSelect.value = state.glasses;
+            const hatSelect = document.getElementById('hatSelect');
+            if (hatSelect) hatSelect.value = state.hat;
+            const neckSelect = document.getElementById('neckSelect');
+            if (neckSelect) neckSelect.value = state.neck;
+
+            // Line style buttons
+            setLineStyle(state.lineStyle);
+        }
+
+        function exportJSON() {
+            const defaultFilename = `dog_preset_${Date.now()}.json`;
+            const inputName = prompt('保存するファイル名を入力してください:', defaultFilename);
+            if (!inputName) return;
+
+            const finalFilename = inputName.trim().endsWith('.json') ? inputName.trim() : inputName.trim() + '.json';
+
+            const exportData = {
+                limbSpacing: state.limbSpacing,
+                eyeSize: state.eyeSize,
+                eyeSpacing: state.eyeSpacing,
+                earLength: state.earLength,
+                earWidth: state.earWidth,
+                earAngle: state.earAngle,
+                muzzleWidth: state.muzzleWidth,
+                cheekFluff: state.cheekFluff,
+                blushIntensity: state.blushIntensity,
+                hasEyebrows: state.hasEyebrows,
+                eyebrowStyle: state.eyebrowStyle,
+                eyebrowAngle: state.eyebrowAngle,
+                eyebrowLength: state.eyebrowLength,
+                eyebrowThickness: state.eyebrowThickness,
+                primaryColor: state.primaryColor,
+                secondaryColor: state.secondaryColor,
+                innerEarColor: state.innerEarColor,
+                eyeColor: state.eyeColor,
+                noseColor: state.noseColor,
+                bgColor: state.bgColor,
+                lineStyle: state.lineStyle,
+                glasses: state.glasses,
+                hat: state.hat,
+                neck: state.neck,
+                texScale: state.texScale,
+                texRotate: state.texRotate,
+                texOffsetX: state.texOffsetX,
+                texOffsetY: state.texOffsetY,
+                texBrightness: state.texBrightness,
+                texContrast: state.texContrast,
+                texSaturate: state.texSaturate,
+                texHue: state.texHue
+            };
+
+            const jsonStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = finalFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast(`設定を「${finalFilename}」として保存しました 💾`);
+        }
+
+        function triggerLoadJSON() {
+            document.getElementById('jsonFileInput').click();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    Object.keys(data).forEach(key => {
+                        if (key in state) {
+                            state[key] = data[key];
+                        }
+                    });
+                    syncControlInputs();
+                    showToast(`設定「${file.name}」を読み込みました 📂`);
+                } catch (err) {
+                    showToast('JSONファイルの読み込みに失敗しました ❌');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         function updateParam(key, val) {
