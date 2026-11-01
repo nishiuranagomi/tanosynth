@@ -606,6 +606,9 @@
         // Camera Video Stream Reference
         let cameraStream = null;
 
+        // Global Matrix Reference for Centralized Texture Alignment
+        let currentDogMatrix = null;
+
         /**
          * WINDOW LOAD INITIALIZATION
          */
@@ -830,6 +833,10 @@
             targetCtx.rotate(swayAngle);
             targetCtx.translate(0, headBobY);
 
+            if (!isGuide) {
+                currentDogMatrix = targetCtx.getTransform();
+            }
+
             setupContextStyle(targetCtx, isGuide);
 
             // Draw Layers in strict Z-index order
@@ -907,13 +914,25 @@
 
             pCtx.filter = `brightness(${state.texBrightness}) contrast(${state.texContrast})`;
             pCtx.save();
-            pCtx.translate(400 + state.texOffsetX, 450 + state.texOffsetY);
+            pCtx.translate(400 + state.texOffsetX, 400 + state.texOffsetY);
             pCtx.rotate((state.texRotate * Math.PI) / 180);
             pCtx.scale(state.texScale, state.texScale);
-            pCtx.drawImage(state.cameraTextureImage, -400, -450, 800, 800);
+            pCtx.drawImage(state.cameraTextureImage, -400, -400, 800, 800);
             pCtx.restore();
 
-            return c.createPattern(patternCanvas, 'no-repeat');
+            const pattern = c.createPattern(patternCanvas, 'no-repeat');
+
+            if (pattern && currentDogMatrix) {
+                try {
+                    const currentMatrix = c.getTransform();
+                    const patternMatrix = currentMatrix.inverse().multiply(currentDogMatrix);
+                    pattern.setTransform(patternMatrix);
+                } catch (e) {
+                    // Fallback for matrix calculation
+                }
+            }
+
+            return pattern;
         }
 
         /**
