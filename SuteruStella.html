@@ -16,8 +16,7 @@
     <meta name="synth-number" content="#05">
     <!-- ======================================================= -->
 
-    
-    <title>Suteru Stella</title>
+    <title>Steru Stella</title>
     <!-- Three.js for 3D Space Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Font Awesome Icons -->
@@ -30,8 +29,8 @@
     <style>
         :root {
             --bg-dark: #070a12;
-            --panel-bg: rgba(10, 15, 26, 0.82);
-            --panel-border: rgba(0, 240, 255, 0.2);
+            --panel-bg: rgba(10, 15, 26, 0.85);
+            --panel-border: rgba(0, 240, 255, 0.25);
             --cyan-accent: #00f0ff;
             --pink-accent: #ff007f;
             --gold-accent: #ffb700;
@@ -69,11 +68,12 @@
         /* Glassmorphism Panels */
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--panel-border);
-            border-radius: 14px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* HUD Overlay Layout */
@@ -83,9 +83,10 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            padding: 16px;
+            padding: clamp(8px, 1.5vw, 16px);
             pointer-events: none;
             justify-content: space-between;
+            gap: 8px;
         }
 
         .pointer-auto {
@@ -98,20 +99,21 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
+            width: 100%;
         }
 
         .brand-box {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
+            gap: 10px;
+            padding: 6px 12px;
         }
 
         .brand-title {
             font-family: 'Orbitron', sans-serif;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
             color: var(--cyan-accent);
             letter-spacing: 1px;
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
@@ -119,11 +121,11 @@
 
         .brand-metrics {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             font-family: monospace;
-            font-size: 0.75rem;
+            font-size: clamp(0.65rem, 1.8vw, 0.75rem);
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .metric-val {
@@ -134,145 +136,119 @@
         .tension-banner {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 16px;
+            gap: 8px;
+            padding: 6px 12px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
+            font-size: clamp(0.65rem, 1.8vw, 0.75rem);
             transition: all 0.3s ease;
         }
 
-        .tension-stable {
-            border-color: rgba(0, 240, 255, 0.4);
-            color: var(--cyan-accent);
-        }
+        .tension-stable { border-color: rgba(0, 240, 255, 0.4); color: var(--cyan-accent); }
+        .tension-caution { border-color: rgba(255, 183, 0, 0.6); background: rgba(40, 30, 0, 0.4); color: var(--gold-accent); }
+        .tension-warning { border-color: rgba(255, 120, 0, 0.8); background: rgba(50, 20, 0, 0.5); color: #ff7800; animation: pulse-warn 1.5s infinite ease-in-out; }
+        .tension-danger { border-color: var(--red-accent); background: rgba(60, 0, 20, 0.7); color: var(--red-accent); box-shadow: 0 0 20px rgba(255, 34, 85, 0.5); animation: pulse-danger 0.8s infinite ease-in-out; }
 
-        .tension-caution {
-            border-color: rgba(255, 183, 0, 0.6);
-            background: rgba(40, 30, 0, 0.4);
-            color: var(--gold-accent);
-        }
-
-        .tension-warning {
-            border-color: rgba(255, 120, 0, 0.8);
-            background: rgba(50, 20, 0, 0.5);
-            color: #ff7800;
-            animation: pulse-warn 1.5s infinite ease-in-out;
-        }
-
-        .tension-danger {
-            border-color: var(--red-accent);
-            background: rgba(60, 0, 20, 0.7);
-            color: var(--red-accent);
-            box-shadow: 0 0 20px rgba(255, 34, 85, 0.5);
-            animation: pulse-danger 0.8s infinite ease-in-out;
-        }
-
-        @keyframes pulse-warn {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
-        }
-
-        @keyframes pulse-danger {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.04); }
-        }
+        @keyframes pulse-warn { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+        @keyframes pulse-danger { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
 
         /* Global Controls Bar */
         .controls-bar {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 8px 16px;
+            gap: clamp(6px, 1.2vw, 12px);
+            padding: 6px 12px;
             font-size: 0.8rem;
+            flex-wrap: wrap;
         }
 
         .ctrl-btn {
             background: transparent;
             border: none;
             color: var(--cyan-accent);
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: color 0.2s, transform 0.1s;
         }
 
-        .ctrl-btn:hover {
-            color: #ffffff;
-            transform: scale(1.1);
-        }
+        .ctrl-btn:hover { color: #ffffff; transform: scale(1.1); }
 
         .slider-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: var(--text-muted);
             font-family: monospace;
+            font-size: 0.75rem;
         }
 
         input[type="range"] {
             appearance: none;
             -webkit-appearance: none;
-            height: 5px;
+            height: 4px;
             background: rgba(255, 255, 255, 0.15);
-            border-radius: 3px;
+            border-radius: 2px;
             outline: none;
             cursor: pointer;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--cyan-accent);
-            box-shadow: 0 0 8px var(--cyan-accent);
+            box-shadow: 0 0 6px var(--cyan-accent);
         }
 
         .action-btn {
             background: rgba(0, 240, 255, 0.15);
             border: 1px solid rgba(0, 240, 255, 0.4);
             color: var(--cyan-accent);
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: clamp(0.68rem, 1.8vw, 0.78rem);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            white-space: nowrap;
         }
 
         .action-btn:hover {
             background: rgba(0, 240, 255, 0.3);
             color: #ffffff;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
         }
 
         .action-btn.active {
             background: rgba(0, 240, 255, 0.4);
             border-color: var(--cyan-accent);
             color: #ffffff;
-            box-shadow: 0 0 14px rgba(0, 240, 255, 0.6);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
         }
 
         /* Workspace Main Layout */
         .workspace {
             display: flex;
             justify-content: space-between;
-            gap: 16px;
+            gap: 12px;
             flex: 1;
-            margin: 12px 0;
+            margin: 4px 0;
             overflow: hidden;
+            pointer-events: none;
         }
 
         .sidebar {
-            width: 320px;
+            width: min(280px, 42vw);
             display: flex;
             flex-direction: column;
-            padding: 12px;
+            padding: 10px;
             max-height: 100%;
             overflow: hidden;
+            pointer-events: auto;
         }
 
         .sidebar-header {
@@ -280,11 +256,17 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
-            margin-bottom: 10px;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
             color: var(--cyan-accent);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .sidebar-content {
@@ -292,49 +274,82 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding-right: 4px;
+            gap: 6px;
+            padding-right: 2px;
+            transition: opacity 0.2s;
+        }
+
+        /* 最小化（Collapsed）状態のクラス定義 */
+        .sidebar.collapsed {
+            height: auto !important;
+            max-height: 42px !important;
+            padding-bottom: 6px !important;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-content {
+            display: none !important;
+            opacity: 0;
+        }
+
+        .minimize-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+        }
+
+        .minimize-btn:hover {
+            color: var(--cyan-accent);
+            border-color: var(--cyan-accent);
+            background: rgba(0, 240, 255, 0.15);
         }
 
         /* Cards & Log Items */
         .culture-card {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             transition: border-color 0.2s;
         }
 
-        .culture-card:hover {
-            border-color: rgba(0, 240, 255, 0.4);
-        }
+        .culture-card:hover { border-color: rgba(0, 240, 255, 0.4); }
 
         .card-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .card-title {
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .stage-badge {
-            font-size: 0.65rem;
-            padding: 2px 6px;
+            font-size: 0.6rem;
+            padding: 1px 5px;
             border-radius: 4px;
             font-weight: bold;
             font-family: monospace;
         }
 
         .card-details {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 4px;
+            gap: 2px;
             font-family: monospace;
         }
 
@@ -342,9 +357,9 @@
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: var(--text-muted);
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
         }
 
@@ -356,10 +371,10 @@
         .log-item {
             background: rgba(15, 23, 42, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 8px;
-            font-size: 0.75rem;
-            line-height: 1.3;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 0.7rem;
+            line-height: 1.25;
         }
 
         .log-head {
@@ -370,17 +385,17 @@
         }
 
         .log-time {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--text-muted);
             font-family: monospace;
         }
 
-        /* Footer */
+        /* Footer Navigation Helper */
         footer {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            font-size: 0.75rem;
+            justify-content: center;
+            font-size: 0.7rem;
             color: var(--text-muted);
             font-family: monospace;
         }
@@ -395,7 +410,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px;
             opacity: 1;
             transition: opacity 0.3s ease;
         }
@@ -406,13 +421,13 @@
         }
 
         .modal-box {
-            max-width: 580px;
+            max-width: 520px;
             width: 100%;
-            padding: 28px;
+            padding: clamp(16px, 4vw, 24px);
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            max-height: 88vh;
+            gap: 14px;
+            max-height: 85vh;
             overflow: hidden;
         }
 
@@ -421,7 +436,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             font-family: 'Orbitron', sans-serif;
             color: var(--cyan-accent);
         }
@@ -430,30 +445,27 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            padding-right: 4px;
+            gap: 14px;
+            padding-right: 2px;
         }
 
         .start-btn {
             width: 100%;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 14px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #00f0ff, #7000ff);
             border: none;
             color: #000;
             font-family: 'Orbitron', sans-serif;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
             transition: transform 0.2s;
         }
 
-        .start-btn:hover {
-            transform: scale(1.02);
-        }
+        .start-btn:hover { transform: scale(1.02); }
 
-        /* Decisive Battle Modal Specific Styles */
         .battle-modal-box {
             border: 2px solid var(--red-accent);
             box-shadow: 0 0 35px rgba(255, 34, 85, 0.4);
@@ -462,53 +474,40 @@
 
         .battle-status-text {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--gold-accent);
-            margin: 10px 0;
-            min-height: 28px;
+            margin: 8px 0;
+            min-height: 24px;
         }
 
         .battle-choices-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 10px;
         }
 
         .battle-choice-btn {
             background: rgba(255, 34, 85, 0.15);
             border: 2px solid var(--red-accent);
             color: var(--text-main);
-            border-radius: 12px;
-            padding: 16px 12px;
+            border-radius: 10px;
+            padding: 12px 8px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .battle-choice-btn:hover:not(:disabled) {
-            background: rgba(255, 34, 85, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(255, 34, 85, 0.6);
-        }
-
-        .battle-choice-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Culture Control Filter Chips */
         .filter-section-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 700;
             color: var(--cyan-accent);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -516,16 +515,16 @@
 
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 6px;
         }
 
         .toggle-chip {
-            padding: 8px 10px;
+            padding: 6px 8px;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 8px;
-            font-size: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
             cursor: pointer;
             text-align: center;
             transition: all 0.2s ease;
@@ -533,45 +532,89 @@
             font-family: monospace;
         }
 
-        .toggle-chip:hover {
-            border-color: var(--cyan-accent);
-            color: var(--text-main);
-        }
-
         .toggle-chip.active {
             background: rgba(0, 240, 255, 0.18);
             border-color: var(--cyan-accent);
             color: var(--cyan-accent);
             font-weight: bold;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
 
         /* Scrollbars */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 240, 255, 0.3);
-            border-radius: 2px;
-        }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.3); border-radius: 2px; }
 
-        /* Responsive */
+        /**
+         * ==========================================
+         * RESPONSIVE MOBILE STYLES (縦画面最適化)
+         * ==========================================
+         */
         @media (max-width: 768px) {
-            .sidebar-left {
-                display: none;
+            .hud-overlay {
+                padding: 6px;
+                gap: 6px;
             }
-            .sidebar {
+
+            header {
+                gap: 6px;
+            }
+
+            .brand-box {
+                padding: 4px 8px;
                 width: 100%;
+                justify-content: space-between;
             }
+
+            .tension-banner {
+                padding: 4px 8px;
+                font-size: 0.65rem;
+                width: 100%;
+                justify-content: center;
+            }
+
             .controls-bar {
-                font-size: 0.7rem;
-                gap: 8px;
+                padding: 4px 8px;
+                gap: 6px;
+                width: 100%;
+                justify-content: space-around;
             }
+
+            .slider-group {
+                font-size: 0.65rem;
+            }
+
+            input[type="range"] {
+                width: 45px !important;
+            }
+
+            /* モバイル環境ではワークスペースを上下配置にし、高さ・幅を割合指定 */
+            .workspace {
+                flex-direction: column;
+                justify-content: flex-end;
+                gap: 6px;
+            }
+
+            .sidebar {
+                width: 100% !important;
+                max-width: 100%;
+                max-height: 28vh; /* 画面高さの28%に抑えて3D領域を確保 */
+            }
+
+            .sidebar-content {
+                max-height: 20vh;
+            }
+
+            /* モバイル表示時、デフォルトで最小化された場合のスタイル */
+            .sidebar.collapsed {
+                max-height: 36px !important;
+            }
+
             .battle-choices-grid {
                 grid-template-columns: 1fr;
+            }
+
+            footer {
+                display: none; /* スマホ画面では領域確保のためフッター非表示 */
             }
         }
     </style>
@@ -581,26 +624,26 @@
     <!-- Start Overlay for Web Audio Unlock -->
     <div id="start-overlay" class="modal-backdrop">
         <div class="glass-panel modal-box" style="text-align: center;">
-            <div style="font-size: 3rem; color: var(--cyan-accent);">
+            <div style="font-size: 2.5rem; color: var(--cyan-accent);">
                 <i class="fa-solid fa-dna"></i>
             </div>
             <div>
-                <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 8px;">
+                <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 6px;">
                     AETHERIA
                 </h1>
-                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
-                    生命と文明の進化を音符と文化ルール（スケール・リズム・音形）でシミュレートする3Dインタラクティブ・ライフシンセサイザー。
+                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                    3D Life & Music Simulator
                 </p>
             </div>
-            <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; text-align: left; font-size: 0.75rem; color: #cbd5e1; line-height: 1.6;">
-                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 発展途上国(4Beat) → 新興国(8Beat) → 先進国(16Beat)</div>
-                <div><strong style="color: var(--gold-accent);">・発展・革命:</strong> 8小節上限で50%発展、50%革命（派生誕生）</div>
-                <div><strong style="color: #ff5555;">・自然衰退:</strong> 累計32小節経過で文化は衰退消滅（※融合でリセット）</div>
-                <div><strong style="color: var(--purple-accent);">・融合 (1%):</strong> 球体同士の接触により統合超文化へ昇華</div>
-                <div><strong style="color: var(--red-accent);">・惨禍 / 決戦:</strong> 不協和度により25%ランダム消滅、または決戦(不協和度×50%)が発動</div>
+            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; text-align: left; font-size: 0.7rem; color: #cbd5e1; line-height: 1.5;">
+                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 途上国(4Beat) → 新興国(8Beat) → 先進国(16Beat)</div>
+                <div><strong style="color: var(--gold-accent);">・発展/革命:</strong> 8小節上限で50%発展 / 50%革命</div>
+                <div><strong style="color: #ff5555;">・自然衰退:</strong> 累計32小節経過で自然消滅（融合でリセット）</div>
+                <div><strong style="color: var(--purple-accent);">・融合 (1%):</strong> 球体同士の接触で統合超文化へ昇華</div>
+                <div><strong style="color: var(--red-accent);">・惨禍/決戦:</strong> 不協和度により25%消滅、または決戦(不協和度×50%)が発動</div>
             </div>
             <button id="btn-start" class="start-btn">
-                <i class="fa-solid fa-play" style="margin-right: 8px;"></i> シミュレーションを開始
+                <i class="fa-solid fa-play" style="margin-right: 6px;"></i> シミュレーション開始
             </button>
         </div>
     </div>
@@ -609,12 +652,12 @@
     <div id="modal-battle-mode" class="modal-backdrop hidden">
         <div class="glass-panel modal-box battle-modal-box">
             <div class="modal-header" style="justify-content: center; border-bottom-color: rgba(255, 34, 85, 0.3);">
-                <h3 id="battle-modal-title" style="color: var(--red-accent); font-size: 1.4rem;">
-                    <i class="fa-solid fa-fire-flame-curved" style="margin-right: 10px; color: #ff007f;"></i>決戦モード発動
+                <h3 id="battle-modal-title" style="color: var(--red-accent); font-size: 1.2rem;">
+                    <i class="fa-solid fa-fire-flame-curved" style="margin-right: 8px; color: #ff007f;"></i>決戦モード発動
                 </h3>
             </div>
             <div class="modal-body" style="align-items: center;">
-                <p id="battle-modal-desc" style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5;">
+                <p id="battle-modal-desc" style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.4;">
                     全文化が2つの勢力に分かれました。勢力ごとの合同演奏を試聴しています...
                 </p>
 
@@ -623,7 +666,7 @@
                 </div>
 
                 <div id="battle-choices" class="battle-choices-grid" style="width: 100%;">
-                    <!-- Dynamic choice buttons inserted here when playback finishes -->
+                    <!-- Dynamic choice buttons -->
                 </div>
             </div>
         </div>
@@ -633,16 +676,16 @@
     <div id="modal-culture-control" class="modal-backdrop hidden">
         <div class="glass-panel modal-box">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-sliders" style="margin-right: 8px;"></i>文化統制（使用要素の限定）</h3>
-                <button id="btn-close-control-modal" class="focus-btn" style="padding: 4px 10px; font-size: 0.9rem;">✕</button>
+                <h3 style="font-size: 1rem;"><i class="fa-solid fa-sliders" style="margin-right: 6px;"></i>文化統制</h3>
+                <button id="btn-close-control-modal" class="focus-btn" style="padding: 2px 8px;">✕</button>
             </div>
             <div class="modal-body">
                 <div>
-                    <div class="filter-section-title"><i class="fa-solid fa-music"></i> 使用スケール (Scales)</div>
+                    <div class="filter-section-title"><i class="fa-solid fa-music"></i> 使用スケール</div>
                     <div class="filter-grid" id="scale-filter-grid"></div>
                 </div>
                 <div>
-                    <div class="filter-section-title"><i class="fa-solid fa-drum"></i> 使用リズム (Rhythms)</div>
+                    <div class="filter-section-title"><i class="fa-solid fa-drum"></i> 使用リズム</div>
                     <div class="filter-grid" id="rhythm-filter-grid"></div>
                 </div>
             </div>
@@ -658,14 +701,14 @@
         <!-- Top Header Controls -->
         <header class="pointer-auto">
             <div class="glass-panel brand-box">
-                <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--cyan-accent); box-shadow: 0 0 8px var(--cyan-accent);"></div>
-                <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan-accent); box-shadow: 0 0 6px var(--cyan-accent);"></div>
                     <div class="brand-title">AETHERIA</div>
-                    <div class="brand-metrics">
-                        <span>CULTURES: <span id="stat-cultures" class="metric-val" style="color: var(--cyan-accent);">0</span></span>
-                        <span>NOTES: <span id="stat-notes" class="metric-val" style="color: var(--pink-accent);">0</span></span>
-                        <span>DISSONANCE: <span id="stat-dissonance" class="metric-val" style="color: var(--gold-accent);">0%</span></span>
-                    </div>
+                </div>
+                <div class="brand-metrics">
+                    <span>C: <span id="stat-cultures" class="metric-val" style="color: var(--cyan-accent);">0</span></span>
+                    <span>N: <span id="stat-notes" class="metric-val" style="color: var(--pink-accent);">0</span></span>
+                    <span>D: <span id="stat-dissonance" class="metric-val" style="color: var(--gold-accent);">0%</span></span>
                 </div>
             </div>
 
@@ -684,25 +727,25 @@
 
                 <div class="slider-group">
                     <i class="fa-solid fa-gauge-high" style="color: var(--cyan-accent);"></i>
-                    <span style="width: 55px;"><span id="val-bpm">120</span> BPM</span>
-                    <input type="range" id="input-bpm" min="60" max="220" value="120">
+                    <span style="width: 48px;"><span id="val-bpm">120</span>BPM</span>
+                    <input type="range" id="input-bpm" min="60" max="220" value="120" style="width: 50px;">
                 </div>
 
-                <div class="slider-group" style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 10px;">
+                <div class="slider-group">
                     <i class="fa-solid fa-volume-high" style="color: var(--cyan-accent);"></i>
-                    <input type="range" id="input-vol" min="0" max="1" step="0.01" value="0.7" style="width: 60px;">
+                    <input type="range" id="input-vol" min="0" max="1" step="0.01" value="0.7" style="width: 45px;">
                 </div>
 
                 <button id="btn-toggle-autofit" class="action-btn active" title="全文化オートフィットカメラ">
-                    <i class="fa-solid fa-expand"></i> オートカメラ
+                    <i class="fa-solid fa-expand"></i> <span>カメラ</span>
                 </button>
 
                 <button id="btn-open-control" class="action-btn">
-                    <i class="fa-solid fa-sliders"></i> 文化統制
+                    <i class="fa-solid fa-sliders"></i> <span>統制</span>
                 </button>
 
                 <button id="btn-add-culture" class="action-btn">
-                    <i class="fa-solid fa-plus"></i> 文化創生
+                    <i class="fa-solid fa-plus"></i> <span>創生</span>
                 </button>
             </div>
         </header>
@@ -710,10 +753,13 @@
         <!-- Main Workspace -->
         <div class="workspace">
             <!-- Left Sidebar: Cultures -->
-            <aside class="glass-panel sidebar sidebar-left pointer-auto">
+            <aside id="sidebar-cultures" class="glass-panel sidebar pointer-auto">
                 <div class="sidebar-header">
-                    <span><i class="fa-solid fa-globe"></i> 文明・文化一覧</span>
-                    <button id="btn-camera-reset" class="focus-btn"><i class="fa-solid fa-arrows-to-eye"></i> リセット</button>
+                    <span><i class="fa-solid fa-globe"></i> 文明一覧</span>
+                    <div class="header-actions">
+                        <button id="btn-camera-reset" class="focus-btn" title="カメラリセット"><i class="fa-solid fa-arrows-to-eye"></i></button>
+                        <button class="minimize-btn" title="最小化/展開" onclick="toggleSidebarMinimize('sidebar-cultures')"><i class="fa-solid fa-minus"></i></button>
+                    </div>
                 </div>
                 <div id="cultures-container" class="sidebar-content">
                     <!-- Dynamic culture cards -->
@@ -721,10 +767,13 @@
             </aside>
 
             <!-- Right Sidebar: Live Logs -->
-            <aside class="glass-panel sidebar pointer-auto">
+            <aside id="sidebar-logs" class="glass-panel sidebar pointer-auto">
                 <div class="sidebar-header">
-                    <span style="color: var(--pink-accent);"><i class="fa-solid fa-bolt"></i> ライブイベントログ</span>
-                    <span id="log-count" style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace;">0 EVENTS</span>
+                    <span style="color: var(--pink-accent);"><i class="fa-solid fa-bolt"></i> ライブログ</span>
+                    <div class="header-actions">
+                        <span id="log-count" style="font-size: 0.6rem; color: var(--text-muted); font-family: monospace; margin-right: 4px;">0</span>
+                        <button class="minimize-btn" title="最小化/展開" onclick="toggleSidebarMinimize('sidebar-logs')"><i class="fa-solid fa-minus"></i></button>
+                    </div>
                 </div>
                 <div id="log-container" class="sidebar-content">
                     <!-- Dynamic event logs -->
@@ -734,7 +783,7 @@
 
         <!-- Footer Navigation Helper -->
         <footer class="pointer-auto">
-            <div class="glass-panel" style="padding: 6px 12px; border-radius: 8px; display: flex; gap: 16px;">
+            <div class="glass-panel" style="padding: 4px 10px; border-radius: 6px; display: flex; gap: 12px;">
                 <span><i class="fa-solid fa-mouse" style="color: var(--cyan-accent);"></i> 左ドラッグ: 回転</span>
                 <span><i class="fa-solid fa-hand-pointer" style="color: var(--cyan-accent);"></i> 右ドラッグ: 平行移動</span>
                 <span><i class="fa-solid fa-magnifying-glass" style="color: var(--cyan-accent);"></i> ホイール: 拡大</span>
@@ -754,8 +803,8 @@
             'Cマイナー':               [0, 2, 3, 5, 7, 8, 10],
             'Cマイナーペンタトニック':  [0, 3, 5, 7, 10],
             'Cメジャーペンタトニック':  [0, 2, 4, 7, 9],
-            'Stacked 5th':             [-9, -2, 5, 12, 19],    // Eb2 Bb2 F3 C4 G4
-            'Stacked 4th':             [0, 5, 10, 15, 20],     // C3 F3 Bb3 Eb4 Ab4
+            'Stacked 5th':             [-9, -2, 5, 12, 19],
+            'Stacked 4th':             [0, 5, 10, 15, 20],
             'Cリディアン':             [0, 2, 4, 6, 7, 9, 11],
             'Cドリアン':               [0, 2, 3, 5, 7, 9, 10],
             'スパニッシュ':             [0, 1, 4, 5, 7, 8, 10],
@@ -773,18 +822,37 @@
             'Funk':       [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
         };
 
-        // 文化統制用アクティブフィルター
         const activeScales = new Set(Object.keys(BASE_PITCHES));
         const activeRhythms = new Set(Object.keys(RHYTHM_PATTERNS));
 
         const CONTOURS = ['Upward Stepwise', 'Upward Leap', 'Downward Stepwise', 'Downward Leap', 'Random'];
         const OSC_TYPES = ['triangle', 'square', 'sawtooth'];
 
-        const STAGE_NAMES = ['発展途上国', '新興国', '先進国'];
+        const STAGE_NAMES = ['途上国', '新興国', '先進国'];
         const STAGE_COLORS = ['#00f0ff', '#ffb700', '#ff007f'];
         const STAGE_BEATS = [4, 8, 16];
         const STAGE_ATTACKS = [0.100, 0.050, 0.001];
         const STAGE_REVERBS = [0.075, 0.30, 0.60];
+
+        /**
+         * ==========================================
+         * SIDEBAR MINIMIZE TOGGLE FUNCTION
+         * ==========================================
+         */
+        window.toggleSidebarMinimize = function(sidebarId) {
+            const sidebar = document.getElementById(sidebarId);
+            if (!sidebar) return;
+            
+            sidebar.classList.toggle('collapsed');
+            const icon = sidebar.querySelector('.minimize-btn i');
+            if (icon) {
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.className = 'fa-solid fa-plus';
+                } else {
+                    icon.className = 'fa-solid fa-minus';
+                }
+            }
+        };
 
         /**
          * ==========================================
@@ -863,14 +931,12 @@
 
             osc.connect(filter);
             filter.connect(ampGain);
-
             ampGain.connect(masterGain);
 
             if (reverbNode) {
                 const sendGain = audioCtx.createGain();
                 const sendAmount = STAGE_REVERBS[stageLevel] || 0.075;
                 sendGain.gain.setValueAtTime(sendAmount, now);
-
                 ampGain.connect(sendGain);
                 sendGain.connect(reverbNode);
             }
@@ -942,26 +1008,6 @@
         function randomChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
         function randomRange(min, max) { return min + Math.random() * (max - min); }
 
-        function selectWeightedCulture(cultureList) {
-            if (!cultureList || cultureList.length === 0) return null;
-            const totalWeight = cultureList.reduce((sum, c) => sum + (c.notes ? c.notes.length : 0), 0);
-
-            if (totalWeight === 0) {
-                return cultureList[Math.floor(Math.random() * cultureList.length)];
-            }
-
-            let random = Math.random() * totalWeight;
-            for (const c of cultureList) {
-                const weight = c.notes ? c.notes.length : 0;
-                if (random < weight) {
-                    return c;
-                }
-                random -= weight;
-            }
-
-            return cultureList[cultureList.length - 1];
-        }
-
         function generateCultureElement() {
             const availableScales = Array.from(activeScales);
             const availableRhythms = Array.from(activeRhythms);
@@ -993,7 +1039,7 @@
                 this.level = level;
                 this.bars = 1;
                 this.maxBars = 8;
-                this.totalBarsLived = 0; // 衰退判定用（32小節で自然消滅）
+                this.totalBarsLived = 0;
                 this.elements = [generateCultureElement()];
                 this.notes = [];
                 this.lastScaleIndex = 0;
@@ -1143,7 +1189,6 @@
                 this.bars++;
                 this.totalBarsLived++;
 
-                // 32小節経過による自然衰退消滅
                 if (this.totalBarsLived >= 32) {
                     this.triggerDecline();
                     return;
@@ -1167,7 +1212,7 @@
             }
 
             triggerDecline() {
-                addLogEvent('文化消滅 [DECLINE]', `${this.name} は32小節の繁栄を経て、時代の波と共に自然消滅しました。`, 'color: #94a3b8; font-weight: bold;');
+                addLogEvent('文化消滅 [DECLINE]', `${this.name} は32小節を経て自然消滅しました。`, 'color: #94a3b8; font-weight: bold;');
                 createBurstParticles(this.position, new THREE.Color(0x64748b), 45);
                 this.destroy();
                 cultures = cultures.filter(c => c !== this);
@@ -1179,14 +1224,14 @@
                 if (this.level < 2) {
                     this.level++;
                     this.bars = Math.floor(this.bars / 2);
-                    addLogEvent('進化 [EVOLUTION]', `${this.name} が 「${STAGE_NAMES[this.level]}」へ発展しました！`, 'color: var(--cyan-accent);');
+                    addLogEvent('進化 [EVOLUTION]', `${this.name} が 「${STAGE_NAMES[this.level]}」へ発展！`, 'color: var(--cyan-accent);');
                     createBurstParticles(this.position, this.color, 40);
                 }
             }
 
             triggerRevolution() {
                 this.bars = Math.max(1, Math.floor(this.bars / 2));
-                addLogEvent('革命 [REVOLUTION]', `${this.name} で革命発生。新たな文化が派生誕生しました！`, 'color: var(--gold-accent);');
+                addLogEvent('革命 [REVOLUTION]', `${this.name} で革命発生。新文化が派生！`, 'color: var(--gold-accent);');
                 createBurstParticles(this.position, new THREE.Color(0xffb700), 50);
                 spawnChildCulture(this);
             }
@@ -1273,12 +1318,12 @@
         }
 
         function performFusion(c1, c2) {
-            addLogEvent('融合 [FUSION]', `${c1.name} と ${c2.name} が融合！16小節の統合超文化へ昇華（衰退カウントがリセット）しました。`, 'color: var(--purple-accent);');
+            addLogEvent('融合 [FUSION]', `${c1.name} と ${c2.name} が融合！統合超文化へ昇華！`, 'color: var(--purple-accent);');
 
             c1.elements = c1.elements.concat(c2.elements);
             c1.bars = 16;
             c1.maxBars = 16;
-            c1.totalBarsLived = 0; // 統合により衰退カウントをリセット
+            c1.totalBarsLived = 0;
             c1.name = `${c1.name} & ${c2.name} 統合文化`;
             c1.color.setHex(0x7000ff);
 
@@ -1546,6 +1591,11 @@
                 addLogEvent('シミュレーション開始', '生命と文化の第一歩が刻まれ始めました。', 'color: var(--cyan-accent);');
             }
 
+            // モバイル端末（画面幅768px以下）の場合は初期状態でログパネルを最小化して3Dを見やすく設定
+            if (window.innerWidth <= 768) {
+                toggleSidebarMinimize('sidebar-logs');
+            }
+
             scheduleNextBeat();
         }
 
@@ -1566,12 +1616,10 @@
             // 各小節の1拍目 (subBeatIndex === 0) で不協和度判定
             if (subBeatIndex === 0 && cultures.length >= 2 && globalDissonance > 0) {
                 if (Math.random() * 100 < globalDissonance) {
-                    // 不協和度 × 50% の確率で「決戦」モード発動
                     const decisiveBattleChance = globalDissonance * 0.5;
                     if (Math.random() * 100 < decisiveBattleChance) {
                         triggerDecisiveBattleEvent();
                     } else {
-                        // バトルモード廃止に伴い、全体の25%をランダム消滅
                         triggerRandomCullEvent();
                     }
                     return;
@@ -1626,15 +1674,10 @@
          * RANDOM CULL (25% EXTINCTION) & DECISIVE BATTLE
          * ==========================================
          */
-
-        // 全体の25%をランダム消滅させるイベント処理
         function triggerRandomCullEvent() {
             if (cultures.length === 0) return;
 
-            // 全体の文化数の25%（最低1個）
             const countToDestroy = Math.max(1, Math.ceil(cultures.length * 0.25));
-
-            // ランダムに選出
             const shuffled = [...cultures].sort(() => 0.5 - Math.random());
             const victims = shuffled.slice(0, countToDestroy);
             const victimNames = victims.map(c => c.name).join(', ');
@@ -1648,10 +1691,9 @@
             triggerExplosionSound();
             cameraShake = 2.0;
 
-            // 崩壊後に不協和度をリセット
             globalDissonance = 0;
 
-            addLogEvent('不協和惨禍 [25% 消滅]', `不協和の崩壊現象が発生。全文化の25%（${countToDestroy}文明: ${victimNames}）がランダム消滅しました。`, 'color: var(--red-accent); font-weight: bold;');
+            addLogEvent('不協和惨禍 [25% 消滅]', `全文化の25%（${countToDestroy}文明: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
 
             updateCultureUIList();
             updateHUDStats();
@@ -1707,7 +1749,7 @@
             triggerExplosionSound();
             cameraShake = 3.5;
 
-            addLogEvent('決戦発動 [DECISIVE BATTLE]', `不協和度×50%判定を突破し「決戦」モードが発動！全文化が2勢力に分かれて対峙します！`, 'color: var(--red-accent); font-weight: bold; font-size: 0.85rem;');
+            addLogEvent('決戦発動 [DECISIVE BATTLE]', `「決戦」モードが発動！全文化が2勢力に分かれて対峙します！`, 'color: var(--red-accent); font-weight: bold;');
 
             const shuffled = [...cultures].sort(() => 0.5 - Math.random());
             const half = Math.ceil(shuffled.length / 2);
@@ -1720,7 +1762,7 @@
             const choicesElem = document.getElementById('battle-choices');
             const statusElem = document.getElementById('battle-status');
 
-            titleElem.innerHTML = `<i class="fa-solid fa-fire-flame-curved" style="margin-right: 10px; color: #ff007f;"></i>決戦モード発動`;
+            titleElem.innerHTML = `<i class="fa-solid fa-fire-flame-curved" style="margin-right: 8px; color: #ff007f;"></i>決戦モード発動`;
             descElem.textContent = `全文化が2つの勢力に分かれました。勢力ごとの合同演奏を試聴しています...`;
             choicesElem.innerHTML = '';
             statusElem.style.display = 'block';
@@ -1733,21 +1775,21 @@
 
             playBattleSequence(sequenceList, () => {
                 statusElem.innerHTML = `<i class="fa-solid fa-crown" style="color: var(--purple-accent);"></i> 神の決断`;
-                descElem.textContent = `おお、神よ！どちらの勢力を滅ぼしますか？`;
+                descElem.textContent = `どちらの勢力を滅ぼしますか？`;
 
                 window._currentFactionA = factionA;
                 window._currentFactionB = factionB;
 
                 choicesElem.innerHTML = `
                     <button class="battle-choice-btn" onclick="resolveDecisiveBattle('A')">
-                        <i class="fa-solid fa-skull-crossbones" style="font-size: 1.5rem; color: var(--red-accent);"></i>
+                        <i class="fa-solid fa-skull-crossbones" style="font-size: 1.2rem; color: var(--red-accent);"></i>
                         <span>勢力 ALPHA を滅ぼす</span>
-                        <small style="font-weight: normal; color: var(--text-muted);">${factionA.map(c => c.name).join(', ')}</small>
+                        <small style="font-weight: normal; color: var(--text-muted); font-size: 0.65rem;">${factionA.map(c => c.name).join(', ')}</small>
                     </button>
                     <button class="battle-choice-btn" onclick="resolveDecisiveBattle('B')">
-                        <i class="fa-solid fa-skull-crossbones" style="font-size: 1.5rem; color: var(--red-accent);"></i>
+                        <i class="fa-solid fa-skull-crossbones" style="font-size: 1.2rem; color: var(--red-accent);"></i>
                         <span>勢力 BETA を滅ぼす</span>
-                        <small style="font-weight: normal; color: var(--text-muted);">${factionB.map(c => c.name).join(', ')}</small>
+                        <small style="font-weight: normal; color: var(--text-muted); font-size: 0.65rem;">${factionB.map(c => c.name).join(', ')}</small>
                     </button>
                 `;
             });
@@ -1775,7 +1817,7 @@
             inBattleMode = false;
 
             document.getElementById('modal-battle-mode').classList.add('hidden');
-            addLogEvent('決戦完了', `選択された勢力が全滅し、生存勢力の小節数が半減して存続しました。`, 'color: var(--purple-accent);');
+            addLogEvent('決戦完了', `選択勢力が全滅。生存勢力の小節数が半減。`, 'color: var(--purple-accent);');
 
             updateCultureUIList();
             updateHUDStats();
@@ -1845,7 +1887,7 @@
                 logContainer.removeChild(logContainer.lastChild);
             }
 
-            document.getElementById('log-count').innerText = `${logContainer.children.length} EVENTS`;
+            document.getElementById('log-count').innerText = `${logContainer.children.length}`;
         }
 
         function updateHUDStats() {
@@ -1903,12 +1945,12 @@
                         </span>
                     </div>
                     <div class="card-details">
-                        <span>小節: <strong>${c.bars}</strong> / ${c.maxBars}</span>
-                        <span>生存: <strong style="color: ${c.totalBarsLived >= 24 ? '#ff5555' : 'inherit'};">${c.totalBarsLived}</strong>/32小節</span>
+                        <span>小節: <strong>${c.bars}</strong>/${c.maxBars}</span>
+                        <span>生存: <strong style="color: ${c.totalBarsLived >= 24 ? '#ff5555' : 'inherit'};">${c.totalBarsLived}</strong>/32</span>
                         <span>人口: <strong>${c.notes.length}</strong></span>
-                        <span>スケール: ${c.elements[0].scaleName}</span>
+                        <span>音階: ${c.elements[0].scaleName}</span>
                     </div>
-                    <div style="margin-top: 6px; text-align: right;">
+                    <div style="margin-top: 4px; text-align: right;">
                         <button class="focus-btn" onclick="focusOnCulture(${c.id})"><i class="fa-solid fa-crosshairs"></i> フォーカス</button>
                     </div>
                 `;
@@ -2028,7 +2070,7 @@
                 const newCulture = new Culture(globalCultureIdCounter++, spawnPos, 0);
                 cultures.push(newCulture);
                 updateCultureUIList();
-                addLogEvent('文化創生', `新たな文化圏 (${newCulture.name}) を手動で創生しました。`, 'color: var(--cyan-accent);');
+                addLogEvent('文化創生', `新たな文化圏 (${newCulture.name}) を手動創生。`, 'color: var(--cyan-accent);');
             });
 
             document.getElementById('btn-camera-reset').addEventListener('click', () => {
