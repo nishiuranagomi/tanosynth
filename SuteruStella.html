@@ -629,7 +629,7 @@
             </div>
             <div>
                 <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 6px;">
-                    AETHERIA
+                    SteruStella
                 </h1>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
                     3D Life & Music Simulator
@@ -640,7 +640,7 @@
                 <div><strong style="color: var(--gold-accent);">・発展/革命:</strong> 8小節上限で50%発展 / 50%革命</div>
                 <div><strong style="color: #ff5555;">・自然衰退:</strong> 累計32小節経過で自然消滅（融合でリセット）</div>
                 <div><strong style="color: var(--purple-accent);">・融合 (1%):</strong> 球体同士の接触で統合超文化へ昇華</div>
-                <div><strong style="color: var(--red-accent);">・惨禍/決戦:</strong> 不協和度により25%消滅、または決戦(不協和度×50%)が発動</div>
+                <div><strong style="color: var(--red-accent);">・衝突/決戦:</strong> 不協和度により25%消滅、または決戦(不協和度×50%)が発動</div>
             </div>
             <button id="btn-start" class="start-btn">
                 <i class="fa-solid fa-play" style="margin-right: 6px;"></i> シミュレーション開始
@@ -703,7 +703,7 @@
             <div class="glass-panel brand-box">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan-accent); box-shadow: 0 0 6px var(--cyan-accent);"></div>
-                    <div class="brand-title">AETHERIA</div>
+                    <div class="brand-title">SteruStella</div>
                 </div>
                 <div class="brand-metrics">
                     <span>C: <span id="stat-cultures" class="metric-val" style="color: var(--cyan-accent);">0</span></span>
@@ -1693,7 +1693,7 @@
 
             globalDissonance = 0;
 
-            addLogEvent('不協和惨禍 [25% 消滅]', `全文化の25%（${countToDestroy}文明: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
+            addLogEvent('不協和衝突 [25% 消滅]', `全文化の25%（${countToDestroy}文明: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
 
             updateCultureUIList();
             updateHUDStats();
