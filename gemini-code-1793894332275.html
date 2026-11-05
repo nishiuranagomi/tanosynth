@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Life & Music Simulator - Aetheria</title>
+    <!-- Three.js for 3D Space Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #070a12;
+            --panel-bg: rgba(10, 15, 26, 0.82);
+            --panel-border: rgba(0, 240, 255, 0.2);
+            --cyan-accent: #00f0ff;
+            --pink-accent: #ff007f;
+            --gold-accent: #ffb700;
+            --purple-accent: #7000ff;
+            --red-accent: #ff2255;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        /* 3D Canvas Container */
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* Glassmorphism Panels */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--panel-border);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* HUD Overlay Layout */
+        .hud-overlay {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 16px;
+            pointer-events: none;
+            justify-content: space-between;
+        }
+
+        .pointer-auto {
+            pointer-events: auto;
+        }
+
+        /* Header Bar */
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+        }
+
+        .brand-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--cyan-accent);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        .brand-metrics {
+            display: flex;
+            gap: 12px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .metric-val {
+            font-weight: bold;
+        }
+
+        /* Tension Banner */
+        .tension-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .tension-stable {
+            border-color: rgba(0, 240, 255, 0.4);
+            color: var(--cyan-accent);
+        }
+
+        .tension-caution {
+            border-color: rgba(255, 183, 0, 0.6);
+            background: rgba(40, 30, 0, 0.4);
+            color: var(--gold-accent);
+        }
+
+        .tension-warning {
+            border-color: rgba(255, 120, 0, 0.8);
+            background: rgba(50, 20, 0, 0.5);
+            color: #ff7800;
+            animation: pulse-warn 1.5s infinite ease-in-out;
+        }
+
+        .tension-danger {
+            border-color: var(--red-accent);
+            background: rgba(60, 0, 20, 0.7);
+            color: var(--red-accent);
+            box-shadow: 0 0 20px rgba(255, 34, 85, 0.5);
+            animation: pulse-danger 0.8s infinite ease-in-out;
+        }
+
+        @keyframes pulse-warn {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+
+        /* Global Controls Bar */
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+        }
+
+        .ctrl-btn {
+            background: transparent;
+            border: none;
+            color: var(--cyan-accent);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.1s;
+        }
+
+        .ctrl-btn:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        input[type="range"] {
+            appearance: none;
+            -webkit-appearance: none;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--cyan-accent);
+            box-shadow: 0 0 8px var(--cyan-accent);
+        }
+
+        .action-btn {
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            color: var(--cyan-accent);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 240, 255, 0.3);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+        }
+
+        .action-btn.active {
+            background: rgba(0, 240, 255, 0.4);
+            border-color: var(--cyan-accent);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.6);
+        }
+
+        /* Workspace Main Layout */
+        .workspace {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex: 1;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--cyan-accent);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        /* Cards & Log Items */
+        .culture-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .culture-card:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .stage-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .card-details {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            font-family: monospace;
+        }
+
+        .focus-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .focus-btn:hover {
+            color: var(--cyan-accent);
+            border-color: var(--cyan-accent);
+        }
+
+        .log-item {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .log-head {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .log-time {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* Footer */
+        footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* Modals & Backdrop */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(7, 10, 18, 0.88);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-box {
+            max-width: 580px;
+            width: 100%;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            max-height: 88vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--cyan-accent);
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-right: 4px;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00f0ff, #7000ff);
+            border: none;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Decisive Battle Modal Specific Styles */
+        .battle-modal-box {
+            border: 2px solid var(--red-accent);
+            box-shadow: 0 0 35px rgba(255, 34, 85, 0.4);
+            text-align: center;
+        }
+
+        .battle-status-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--gold-accent);
+            margin: 10px 0;
+            min-height: 28px;
+        }
+
+        .battle-choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 15px;
+        }
+
+        .battle-choice-btn {
+            background: rgba(255, 34, 85, 0.15);
+            border: 2px solid var(--red-accent);
+            color: var(--text-main);
+            border-radius: 12px;
+            padding: 16px 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .battle-choice-btn:hover:not(:disabled) {
+            background: rgba(255, 34, 85, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 34, 85, 0.6);
+        }
+
+        .battle-choice-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Culture Control Filter Chips */
+        .filter-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--cyan-accent);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            gap: 8px;
+        }
+
+        .toggle-chip {
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .toggle-chip:hover {
+            border-color: var(--cyan-accent);
+            color: var(--text-main);
+        }
+
+        .toggle-chip.active {
+            background: rgba(0, 240, 255, 0.18);
+            border-color: var(--cyan-accent);
+            color: var(--cyan-accent);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar-left {
+                display: none;
+            }
+            .sidebar {
+                width: 100%;
+            }
+            .controls-bar {
+                font-size: 0.7rem;
+                gap: 8px;
+            }
+            .battle-choices-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Overlay for Web Audio Unlock -->
+    <div id="start-overlay" class="modal-backdrop">
+        <div class="glass-panel modal-box" style="text-align: center;">
+            <div style="font-size: 3rem; color: var(--cyan-accent);">
+                <i class="fa-solid fa-dna"></i>
+            </div>
+            <div>
+                <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 8px;">
+                    AETHERIA
+                </h1>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+                    生命と文明の進化を音符と文化ルール（スケール・リズム・音形）でシミュレートする3Dインタラクティブ・ライフシンセサイザー。
+                </p>
+            </div>
+            <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; text-align: left; font-size: 0.75rem; color: #cbd5e1; line-height: 1.6;">
+                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 発展途上国(4Beat) → 新興国(8Beat) → 先進国(16Beat)</div>
+                <div><strong style="color: var(--gold-accent);">・発展・革命:</strong> 8小節上限で50%発展、50%革命（派生誕生）</div>
+                <div><strong style="color: #ff5555;">・自然衰退:</strong> 累計32小節経過で文化は衰退消滅（※融合でリセット）</div>
+                <div><strong style="color: var(--purple-accent);">・融合 (1%):</strong> 球体同士の接触により統合超文化へ昇華</div>
+                <div><strong style="color: var(--red-accent);">・惨禍 / 決戦:</strong> 不協和度により25%ランダム消滅、または決戦(不協和度×50%)が発動</div>
+            </div>
+            <button id="btn-start" class="start-btn">
+                <i class="fa-solid fa-play" style="margin-right: 8px;"></i> シミュレーションを開始
+            </button>
+        </div>
+    </div>
+
+    <!-- Decisive Battle Mode Modal -->
+    <div id="modal-battle-mode" class="modal-backdrop hidden">
+        <div class="glass-panel modal-box battle-modal-box">
+            <div class="modal-header" style="justify-content: center; border-bottom-color: rgba(255, 34, 85, 0.3);">
+                <h3 id="battle-modal-title" style="color: var(--red-accent); font-size: 1.4rem;">
+                    <i class="fa-solid fa-fire-flame-curved" style="margin-right: 10px; color: #ff007f;"></i>決戦モード発動
+                </h3>
+            </div>
+            <div class="modal-body" style="align-items: center;">
+                <p id="battle-modal-desc" style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5;">
+                    全文化が2つの勢力に分かれました。勢力ごとの合同演奏を試聴しています...
+                </p>
+
+                <div id="battle-status" class="battle-status-text">
+                    <i class="fa-solid fa-spinner fa-spin"></i> 演奏中...
+                </div>
+
+                <div id="battle-choices" class="battle-choices-grid" style="width: 100%;">
+                    <!-- Dynamic choice buttons inserted here when playback finishes -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Culture Control Modal -->
+    <div id="modal-culture-control" class="modal-backdrop hidden">
+        <div class="glass-panel modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-sliders" style="margin-right: 8px;"></i>文化統制（使用要素の限定）</h3>
+                <button id="btn-close-control-modal" class="focus-btn" style="padding: 4px 10px; font-size: 0.9rem;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="filter-section-title"><i class="fa-solid fa-music"></i> 使用スケール (Scales)</div>
+                    <div class="filter-grid" id="scale-filter-grid"></div>
+                </div>
+                <div>
+                    <div class="filter-section-title"><i class="fa-solid fa-drum"></i> 使用リズム (Rhythms)</div>
+                    <div class="filter-grid" id="rhythm-filter-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- HUD Overlay -->
+    <div class="hud-overlay">
+        
+        <!-- Top Header Controls -->
+        <header class="pointer-auto">
+            <div class="glass-panel brand-box">
+                <div style="width: 10px; height: 10px; border-radius: 50%; background: var(--cyan-accent); box-shadow: 0 0 8px var(--cyan-accent);"></div>
+                <div>
+                    <div class="brand-title">AETHERIA</div>
+                    <div class="brand-metrics">
+                        <span>CULTURES: <span id="stat-cultures" class="metric-val" style="color: var(--cyan-accent);">0</span></span>
+                        <span>NOTES: <span id="stat-notes" class="metric-val" style="color: var(--pink-accent);">0</span></span>
+                        <span>DISSONANCE: <span id="stat-dissonance" class="metric-val" style="color: var(--gold-accent);">0%</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tension Level Banner -->
+            <div id="tension-banner" class="glass-panel tension-banner tension-stable">
+                <i id="tension-icon" class="fa-solid fa-shield-halved"></i>
+                <span>緊張度:</span>
+                <strong id="tension-label">平穏 [STABLE]</strong>
+            </div>
+
+            <!-- Global Action Controls -->
+            <div class="glass-panel controls-bar">
+                <button id="btn-toggle-sim" class="ctrl-btn" title="再生/一時停止">
+                    <i id="icon-play-pause" class="fa-solid fa-pause"></i>
+                </button>
+
+                <div class="slider-group">
+                    <i class="fa-solid fa-gauge-high" style="color: var(--cyan-accent);"></i>
+                    <span style="width: 55px;"><span id="val-bpm">120</span> BPM</span>
+                    <input type="range" id="input-bpm" min="60" max="220" value="120">
+                </div>
+
+                <div class="slider-group" style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 10px;">
+                    <i class="fa-solid fa-volume-high" style="color: var(--cyan-accent);"></i>
+                    <input type="range" id="input-vol" min="0" max="1" step="0.01" value="0.7" style="width: 60px;">
+                </div>
+
+                <button id="btn-toggle-autofit" class="action-btn active" title="全文化オートフィットカメラ">
+                    <i class="fa-solid fa-expand"></i> オートカメラ
+                </button>
+
+                <button id="btn-open-control" class="action-btn">
+                    <i class="fa-solid fa-sliders"></i> 文化統制
+                </button>
+
+                <button id="btn-add-culture" class="action-btn">
+                    <i class="fa-solid fa-plus"></i> 文化創生
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <!-- Left Sidebar: Cultures -->
+            <aside class="glass-panel sidebar sidebar-left pointer-auto">
+                <div class="sidebar-header">
+                    <span><i class="fa-solid fa-globe"></i> 文明・文化一覧</span>
+                    <button id="btn-camera-reset" class="focus-btn"><i class="fa-solid fa-arrows-to-eye"></i> リセット</button>
+                </div>
+                <div id="cultures-container" class="sidebar-content">
+                    <!-- Dynamic culture cards -->
+                </div>
+            </aside>
+
+            <!-- Right Sidebar: Live Logs -->
+            <aside class="glass-panel sidebar pointer-auto">
+                <div class="sidebar-header">
+                    <span style="color: var(--pink-accent);"><i class="fa-solid fa-bolt"></i> ライブイベントログ</span>
+                    <span id="log-count" style="font-size: 0.65rem; color: var(--text-muted); font-family: monospace;">0 EVENTS</span>
+                </div>
+                <div id="log-container" class="sidebar-content">
+                    <!-- Dynamic event logs -->
+                </div>
+            </aside>
+        </div>
+
+        <!-- Footer Navigation Helper -->
+        <footer class="pointer-auto">
+            <div class="glass-panel" style="padding: 6px 12px; border-radius: 8px; display: flex; gap: 16px;">
+                <span><i class="fa-solid fa-mouse" style="color: var(--cyan-accent);"></i> 左ドラッグ: 回転</span>
+                <span><i class="fa-solid fa-hand-pointer" style="color: var(--cyan-accent);"></i> 右ドラッグ: 平行移動</span>
+                <span><i class="fa-solid fa-magnifying-glass" style="color: var(--cyan-accent);"></i> ホイール: 拡大</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- SIMULATION LOGIC -->
+    <script>
+        /**
+         * ==========================================
+         * MUSICAL DICTIONARIES & CONFIGURATIONS
+         * ==========================================
+         */
+        const BASE_PITCHES = {
+            'Cメジャー':               [0, 2, 4, 5, 7, 9, 11],
+            'Cマイナー':               [0, 2, 3, 5, 7, 8, 10],
+            'Cマイナーペンタトニック':  [0, 3, 5, 7, 10],
+            'Cメジャーペンタトニック':  [0, 2, 4, 7, 9],
+            'Stacked 5th':             [-9, -2, 5, 12, 19],    // Eb2 Bb2 F3 C4 G4
+            'Stacked 4th':             [0, 5, 10, 15, 20],     // C3 F3 Bb3 Eb4 Ab4
+            'Cリディアン':             [0, 2, 4, 6, 7, 9, 11],
+            'Cドリアン':               [0, 2, 3, 5, 7, 9, 10],
+            'スパニッシュ':             [0, 1, 4, 5, 7, 8, 10],
+            'アラビア':                [0, 2, 3, 6, 8, 11],
+            '琉球':                    [0, 4, 5, 7, 11],
+            '雲井':                    [0, 2, 3, 7, 9]
+        };
+
+        const RHYTHM_PATTERNS = {
+            'Latin':      [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+            'Samba':      [1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0],
+            'Bossa Nova': [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+            'Rock':       [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+            'Shuffle':    [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1],
+            'Funk':       [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
+        };
+
+        // 文化統制用アクティブフィルター
+        const activeScales = new Set(Object.keys(BASE_PITCHES));
+        const activeRhythms = new Set(Object.keys(RHYTHM_PATTERNS));
+
+        const CONTOURS = ['Upward Stepwise', 'Upward Leap', 'Downward Stepwise', 'Downward Leap', 'Random'];
+        const OSC_TYPES = ['triangle', 'square', 'sawtooth'];
+
+        const STAGE_NAMES = ['発展途上国', '新興国', '先進国'];
+        const STAGE_COLORS = ['#00f0ff', '#ffb700', '#ff007f'];
+        const STAGE_BEATS = [4, 8, 16];
+        const STAGE_ATTACKS = [0.100, 0.050, 0.001];
+        const STAGE_REVERBS = [0.075, 0.30, 0.60];
+
+        /**
+         * ==========================================
+         * WEB AUDIO SYNTHESIZER & CONVOLUTION REVERB
+         * ==========================================
+         */
+        let audioCtx = null;
+        let masterGain = null;
+        let reverbNode = null;
+
+        function createConvolutionIRBuffer(duration = 4.5, decayRate = 2.1) {
+            if (!audioCtx) return null;
+            const sampleRate = audioCtx.sampleRate;
+            const length = Math.floor(sampleRate * duration);
+            const impulse = audioCtx.createBuffer(2, length, sampleRate);
+            const left = impulse.getChannelData(0);
+            const right = impulse.getChannelData(1);
+
+            const preDelaySamples = Math.floor(sampleRate * 0.015);
+
+            for (let i = 0; i < length; i++) {
+                if (i < preDelaySamples) {
+                    left[i] = 0;
+                    right[i] = 0;
+                } else {
+                    const t = (i - preDelaySamples) / sampleRate;
+                    const envelope = Math.exp(-t * decayRate);
+                    left[i] = (Math.random() * 2 - 1) * envelope;
+                    right[i] = (Math.random() * 2 - 1) * envelope;
+                }
+            }
+            return impulse;
+        }
+
+        function initAudioEngine() {
+            if (audioCtx) return;
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContextClass();
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+            masterGain.connect(audioCtx.destination);
+
+            reverbNode = audioCtx.createConvolver();
+            reverbNode.buffer = createConvolutionIRBuffer(4.5, 2.1);
+            reverbNode.connect(masterGain);
+        }
+
+        function semitoneToFreq(semitonesFromC3) {
+            const midiNote = 48 + semitonesFromC3;
+            return 440 * Math.pow(2, (midiNote - 69) / 12);
+        }
+
+        function triggerSynthNote(pitchHz, attackTime, synthCfg, stageLevel = 0) {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const filter = audioCtx.createBiquadFilter();
+            const ampGain = audioCtx.createGain();
+
+            osc.type = synthCfg.oscType;
+            osc.frequency.setValueAtTime(pitchHz, now);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(synthCfg.cutoff, now);
+            filter.Q.setValueAtTime(synthCfg.resonance, now);
+
+            const envPeak = Math.min(18000, synthCfg.cutoff + synthCfg.envAmount);
+            filter.frequency.linearRampToValueAtTime(envPeak, now + attackTime);
+            filter.frequency.exponentialRampToValueAtTime(Math.max(80, synthCfg.cutoff * 0.4), now + attackTime + 0.8);
+
+            ampGain.gain.setValueAtTime(0.0001, now);
+            ampGain.gain.linearRampToValueAtTime(0.2, now + attackTime);
+            ampGain.gain.exponentialRampToValueAtTime(0.0001, now + attackTime + 0.8);
+
+            osc.connect(filter);
+            filter.connect(ampGain);
+
+            ampGain.connect(masterGain);
+
+            if (reverbNode) {
+                const sendGain = audioCtx.createGain();
+                const sendAmount = STAGE_REVERBS[stageLevel] || 0.075;
+                sendGain.gain.setValueAtTime(sendAmount, now);
+
+                ampGain.connect(sendGain);
+                sendGain.connect(reverbNode);
+            }
+
+            osc.start(now);
+            osc.stop(now + attackTime + 0.85);
+        }
+
+        function triggerExplosionSound() {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            const now = audioCtx.currentTime;
+
+            const bufferSize = audioCtx.sampleRate * 1.5;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1400, now);
+            filter.frequency.exponentialRampToValueAtTime(25, now + 1.4);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.95, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+            const subOsc = audioCtx.createOscillator();
+            subOsc.type = 'sawtooth';
+            subOsc.frequency.setValueAtTime(160, now);
+            subOsc.frequency.exponentialRampToValueAtTime(20, now + 1.3);
+
+            const subGain = audioCtx.createGain();
+            subGain.gain.setValueAtTime(0.85, now);
+            subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+
+            subOsc.connect(subGain);
+            subGain.connect(masterGain);
+
+            noise.start(now);
+            subOsc.start(now);
+            noise.stop(now + 1.5);
+            subOsc.stop(now + 1.5);
+        }
+
+        /**
+         * ==========================================
+         * SIMULATION STATE & DATA STRUCTURES
+         * ==========================================
+         */
+        let simRunning = false;
+        let inBattleMode = false;
+        let bpm = 120;
+        let globalCultureIdCounter = 1;
+        let cultures = [];
+        let particlesSystem = [];
+        let globalDissonance = 0;
+        let cameraShake = 0;
+        let autoFitCameraEnabled = true;
+
+        function randomChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randomRange(min, max) { return min + Math.random() * (max - min); }
+
+        function selectWeightedCulture(cultureList) {
+            if (!cultureList || cultureList.length === 0) return null;
+            const totalWeight = cultureList.reduce((sum, c) => sum + (c.notes ? c.notes.length : 0), 0);
+
+            if (totalWeight === 0) {
+                return cultureList[Math.floor(Math.random() * cultureList.length)];
+            }
+
+            let random = Math.random() * totalWeight;
+            for (const c of cultureList) {
+                const weight = c.notes ? c.notes.length : 0;
+                if (random < weight) {
+                    return c;
+                }
+                random -= weight;
+            }
+
+            return cultureList[cultureList.length - 1];
+        }
+
+        function generateCultureElement() {
+            const availableScales = Array.from(activeScales);
+            const availableRhythms = Array.from(activeRhythms);
+
+            const scaleName = availableScales.length > 0 ? randomChoice(availableScales) : Object.keys(BASE_PITCHES)[0];
+            const rhythmName = availableRhythms.length > 0 ? randomChoice(availableRhythms) : Object.keys(RHYTHM_PATTERNS)[0];
+            const contourName = randomChoice(CONTOURS);
+
+            return {
+                scaleName,
+                pitches: BASE_PITCHES[scaleName],
+                rhythmName,
+                rhythmPattern: RHYTHM_PATTERNS[rhythmName],
+                contourName,
+                synth: {
+                    oscType: randomChoice(OSC_TYPES),
+                    cutoff: randomRange(400, 3500),
+                    resonance: randomRange(1, 12),
+                    envAmount: randomRange(500, 4000)
+                }
+            };
+        }
+
+        class Culture {
+            constructor(id, position, level = 0) {
+                this.id = id;
+                this.name = `文明 #${id}`;
+                this.position = position.clone();
+                this.level = level;
+                this.bars = 1;
+                this.maxBars = 8;
+                this.totalBarsLived = 0; // 衰退判定用（32小節で自然消滅）
+                this.elements = [generateCultureElement()];
+                this.notes = [];
+                this.lastScaleIndex = 0;
+                this.color = new THREE.Color().setHSL(Math.random(), 0.85, 0.55);
+
+                this.init3DGroup();
+            }
+
+            get beatsPerBar() { return STAGE_BEATS[this.level]; }
+            get maxMelodyNotesPerBar() {
+                if (this.level === 0) return Math.random() < 0.5 ? 2 : 3;
+                if (this.level === 1) return Math.random() < 0.5 ? 6 : 7;
+                return Math.random() < 0.5 ? 14 : 15;
+            }
+
+            get radius() { return 2.5 + (this.bars * 0.7); }
+
+            init3DGroup() {
+                this.group = new THREE.Group();
+                this.group.position.copy(this.position);
+
+                const sphereGeo = new THREE.SphereGeometry(1, 32, 32);
+                const sphereMat = new THREE.MeshPhongMaterial({
+                    color: this.color,
+                    emissive: this.color,
+                    emissiveIntensity: 0.25,
+                    transparent: true,
+                    opacity: 0.28,
+                    shininess: 90
+                });
+                this.outerMesh = new THREE.Mesh(sphereGeo, sphereMat);
+                this.group.add(this.outerMesh);
+
+                const wireGeo = new THREE.IcosahedronGeometry(1, 2);
+                const wireMat = new THREE.MeshBasicMaterial({
+                    color: this.color,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.15
+                });
+                this.wireMesh = new THREE.Mesh(wireGeo, wireMat);
+                this.group.add(this.wireMesh);
+
+                this.linesGeo = new THREE.BufferGeometry();
+                this.linesMat = new THREE.LineBasicMaterial({
+                    color: this.color,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                this.linesMesh = new THREE.LineSegments(this.linesGeo, this.linesMat);
+                this.group.add(this.linesMesh);
+
+                this.notesGroup = new THREE.Group();
+                this.group.add(this.notesGroup);
+
+                scene.add(this.group);
+            }
+
+            update3DScales() {
+                const targetR = this.radius;
+                this.outerMesh.scale.lerp(new THREE.Vector3(targetR, targetR, targetR), 0.1);
+                this.wireMesh.scale.lerp(new THREE.Vector3(targetR * 0.98, targetR * 0.98, targetR * 0.98), 0.1);
+            }
+
+            tick(subBeatIndex, playAudio = true) {
+                const stepStride = 16 / this.beatsPerBar;
+                const triggeredNotes = [];
+
+                if (subBeatIndex % stepStride === 0) {
+                    const stepInPattern = Math.floor(subBeatIndex / stepStride);
+                    for (let el of this.elements) {
+                        const pattern = el.rhythmPattern;
+                        if (pattern[stepInPattern % pattern.length] === 1) {
+                            const noteData = this.spawnMelodicNote(el, playAudio);
+                            if (noteData) triggeredNotes.push(noteData);
+                        }
+                    }
+                }
+
+                if (subBeatIndex === 15 && !inBattleMode) {
+                    this.onBarCompleted();
+                }
+
+                this.updateConstellationLines();
+                return triggeredNotes;
+            }
+
+            spawnMelodicNote(element, playAudio = true) {
+                const maxNotesAllowed = this.bars * this.maxMelodyNotesPerBar;
+
+                if (this.notes.length >= maxNotesAllowed) {
+                    if (this.level === 2) {
+                        const oldest = this.notes.shift();
+                        if (oldest && oldest.mesh) this.notesGroup.remove(oldest.mesh);
+                    } else {
+                        return null;
+                    }
+                }
+
+                const pitches = element.pitches;
+                let nextIdx = this.lastScaleIndex;
+
+                switch (element.contourName) {
+                    case 'Upward Stepwise': nextIdx = (nextIdx + 1) % pitches.length; break;
+                    case 'Upward Leap':     nextIdx = (nextIdx + 3) % pitches.length; break;
+                    case 'Downward Stepwise': nextIdx = (nextIdx - 1 + pitches.length) % pitches.length; break;
+                    case 'Downward Leap':   nextIdx = (nextIdx - 3 + pitches.length * 10) % pitches.length; break;
+                    case 'Random': default:  nextIdx = Math.floor(Math.random() * pitches.length); break;
+                }
+                this.lastScaleIndex = nextIdx;
+
+                const octaveShift = Math.floor(Math.random() * 3);
+                const semitone = pitches[nextIdx] + (octaveShift * 12);
+                const pitchHz = semitoneToFreq(semitone);
+
+                if (playAudio) {
+                    triggerSynthNote(pitchHz, STAGE_ATTACKS[this.level], element.synth, this.level);
+                }
+
+                const r = (this.radius * 0.8) * Math.cbrt(Math.random());
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+
+                const localPos = new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta),
+                    r * Math.cos(phi)
+                );
+
+                const noteGeo = new THREE.SphereGeometry(0.22, 12, 12);
+                const noteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const noteMesh = new THREE.Mesh(noteGeo, noteMat);
+                noteMesh.position.copy(localPos);
+                this.notesGroup.add(noteMesh);
+
+                this.notes.push({
+                    mesh: noteMesh,
+                    localPos,
+                    pitchHz,
+                    ageBars: 0
+                });
+
+                return { cultureId: this.id, semitone, pitchHz };
+            }
+
+            onBarCompleted() {
+                this.bars++;
+                this.totalBarsLived++;
+
+                // 32小節経過による自然衰退消滅
+                if (this.totalBarsLived >= 32) {
+                    this.triggerDecline();
+                    return;
+                }
+
+                for (let i = this.notes.length - 1; i >= 0; i--) {
+                    this.notes[i].ageBars++;
+                    if (this.notes[i].ageBars >= 16) {
+                        const deadNote = this.notes.splice(i, 1)[0];
+                        this.notesGroup.remove(deadNote.mesh);
+                    }
+                }
+
+                if (this.bars >= this.maxBars) {
+                    if (Math.random() < 0.5) {
+                        this.triggerEvolution();
+                    } else {
+                        this.triggerRevolution();
+                    }
+                }
+            }
+
+            triggerDecline() {
+                addLogEvent('文化消滅 [DECLINE]', `${this.name} は32小節の繁栄を経て、時代の波と共に自然消滅しました。`, 'color: #94a3b8; font-weight: bold;');
+                createBurstParticles(this.position, new THREE.Color(0x64748b), 45);
+                this.destroy();
+                cultures = cultures.filter(c => c !== this);
+                updateCultureUIList();
+                updateHUDStats();
+            }
+
+            triggerEvolution() {
+                if (this.level < 2) {
+                    this.level++;
+                    this.bars = Math.floor(this.bars / 2);
+                    addLogEvent('進化 [EVOLUTION]', `${this.name} が 「${STAGE_NAMES[this.level]}」へ発展しました！`, 'color: var(--cyan-accent);');
+                    createBurstParticles(this.position, this.color, 40);
+                }
+            }
+
+            triggerRevolution() {
+                this.bars = Math.max(1, Math.floor(this.bars / 2));
+                addLogEvent('革命 [REVOLUTION]', `${this.name} で革命発生。新たな文化が派生誕生しました！`, 'color: var(--gold-accent);');
+                createBurstParticles(this.position, new THREE.Color(0xffb700), 50);
+                spawnChildCulture(this);
+            }
+
+            updateConstellationLines() {
+                if (this.notes.length < 2) {
+                    this.linesGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(0), 3));
+                    return;
+                }
+
+                const linePositions = [];
+                for (let i = 0; i < this.notes.length - 1; i++) {
+                    const p1 = this.notes[i].localPos;
+                    const p2 = this.notes[i + 1].localPos;
+                    linePositions.push(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+                }
+
+                this.linesGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+                this.linesGeo.attributes.position.needsUpdate = true;
+            }
+
+            destroy() {
+                scene.remove(this.group);
+                this.outerMesh.geometry.dispose();
+                this.outerMesh.material.dispose();
+                this.wireMesh.geometry.dispose();
+                this.wireMesh.material.dispose();
+            }
+        }
+
+        /**
+         * ==========================================
+         * SPATIAL POSITIONING & FUSION MECHANICS
+         * ==========================================
+         */
+        function findNonOverlappingPosition(sourcePos, newRadius = 3) {
+            let attempt = 0;
+            let candidate = new THREE.Vector3();
+
+            while (attempt < 50) {
+                const dir = new THREE.Vector3(
+                    Math.random() - 0.5,
+                    (Math.random() - 0.5) * 0.4,
+                    Math.random() - 0.5
+                ).normalize();
+
+                candidate.copy(sourcePos).addScaledVector(dir, randomRange(12, 22));
+
+                let collision = false;
+                for (let c of cultures) {
+                    if (candidate.distanceTo(c.position) < (c.radius + newRadius + 4)) {
+                        collision = true;
+                        break;
+                    }
+                }
+                if (!collision) return candidate;
+                attempt++;
+            }
+            return candidate;
+        }
+
+        function spawnChildCulture(parentCulture) {
+            const spawnPos = findNonOverlappingPosition(parentCulture.position, 3);
+            const newCulture = new Culture(globalCultureIdCounter++, spawnPos, 0);
+            cultures.push(newCulture);
+            updateCultureUIList();
+        }
+
+        function checkFusionMechanics() {
+            if (inBattleMode) return;
+            for (let i = 0; i < cultures.length; i++) {
+                for (let j = i + 1; j < cultures.length; j++) {
+                    const c1 = cultures[i];
+                    const c2 = cultures[j];
+
+                    if (c1.position.distanceTo(c2.position) <= c1.radius + c2.radius + 1.0) {
+                        if (Math.random() < 0.01) {
+                            performFusion(c1, c2);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        function performFusion(c1, c2) {
+            addLogEvent('融合 [FUSION]', `${c1.name} と ${c2.name} が融合！16小節の統合超文化へ昇華（衰退カウントがリセット）しました。`, 'color: var(--purple-accent);');
+
+            c1.elements = c1.elements.concat(c2.elements);
+            c1.bars = 16;
+            c1.maxBars = 16;
+            c1.totalBarsLived = 0; // 統合により衰退カウントをリセット
+            c1.name = `${c1.name} & ${c2.name} 統合文化`;
+            c1.color.setHex(0x7000ff);
+
+            createBurstParticles(c1.position, new THREE.Color(0x7000ff), 80);
+
+            c2.destroy();
+            cultures = cultures.filter(c => c !== c2);
+
+            updateCultureUIList();
+        }
+
+        /**
+         * ==========================================
+         * 3D GRAPHICS (THREE.JS) SETUP
+         * ==========================================
+         */
+        let scene, camera, renderer;
+
+        function init3DScene() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x070a12, 0.008);
+
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 35, 65);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0x00f0ff, 1.2);
+            dirLight1.position.set(40, 60, 20);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0xff007f, 0.8);
+            dirLight2.position.set(-40, -20, -30);
+            scene.add(dirLight2);
+
+            initStarfield();
+            setupCameraControls(container);
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function initStarfield() {
+            const count = 1000;
+            const geo = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 300;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 300;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 300;
+
+                colors[i * 3] = 0.2 + Math.random() * 0.5;
+                colors[i * 3 + 1] = 0.5 + Math.random() * 0.5;
+                colors[i * 3 + 2] = 1.0;
+            }
+
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const mat = new THREE.PointsMaterial({
+                size: 0.8,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            scene.add(new THREE.Points(geo, mat));
+        }
+
+        function createBurstParticles(pos, color, count = 30) {
+            for (let i = 0; i < count; i++) {
+                const pGeo = new THREE.SphereGeometry(0.2, 8, 8);
+                const pMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 1 });
+                const pMesh = new THREE.Mesh(pGeo, pMat);
+
+                pMesh.position.copy(pos);
+                const vel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.8,
+                    (Math.random() - 0.5) * 0.8,
+                    (Math.random() - 0.5) * 0.8
+                );
+
+                scene.add(pMesh);
+                particlesSystem.push({ mesh: pMesh, vel, life: 1.0 });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particlesSystem.length - 1; i >= 0; i--) {
+                const p = particlesSystem[i];
+                p.mesh.position.add(p.vel);
+                p.life -= 0.025;
+                p.mesh.material.opacity = p.life;
+
+                if (p.life <= 0) {
+                    scene.remove(p.mesh);
+                    p.mesh.geometry.dispose();
+                    p.mesh.material.dispose();
+                    particlesSystem.splice(i, 1);
+                }
+            }
+        }
+
+        /**
+         * ==========================================
+         * CAMERA CONTROLLER (TOUCH & MOUSE & AUTO-FIT)
+         * ==========================================
+         */
+        let camTarget = new THREE.Vector3(0, 0, 0);
+        let targetCamTarget = new THREE.Vector3(0, 0, 0);
+        let isDragging = false;
+        let dragMode = 0;
+        let previousMousePosition = { x: 0, y: 0 };
+        let spherical = new THREE.Spherical(75, Math.PI / 4, Math.PI / 4);
+        let targetSphericalRadius = 75;
+
+        function setupCameraControls(domElement) {
+            domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                dragMode = e.button === 2 ? 1 : 0;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                if (dragMode === 0) {
+                    spherical.theta -= deltaX * 0.005;
+                    spherical.phi -= deltaY * 0.005;
+                    spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi));
+                } else {
+                    camTarget.x -= deltaX * 0.08;
+                    camTarget.y += deltaY * 0.08;
+                    targetCamTarget.copy(camTarget);
+                }
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+                updateCameraPosition();
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            domElement.addEventListener('contextmenu', e => e.preventDefault());
+
+            domElement.addEventListener('wheel', (e) => {
+                targetSphericalRadius += e.deltaY * 0.05;
+                targetSphericalRadius = Math.max(15, Math.min(250, targetSphericalRadius));
+            }, { passive: true });
+
+            let touchStartDist = 0;
+            domElement.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    dragMode = 0;
+                    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                } else if (e.touches.length === 2) {
+                    isDragging = true;
+                    dragMode = 1;
+                    touchStartDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }, { passive: true });
+
+            domElement.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                if (e.touches.length === 1 && dragMode === 0) {
+                    const deltaX = e.touches[0].clientX - previousMousePosition.x;
+                    const deltaY = e.touches[0].clientY - previousMousePosition.y;
+                    spherical.theta -= deltaX * 0.006;
+                    spherical.phi -= deltaY * 0.006;
+                    spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi));
+                    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                } else if (e.touches.length === 2) {
+                    const dist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    targetSphericalRadius += (touchStartDist - dist) * 0.1;
+                    targetSphericalRadius = Math.max(15, Math.min(250, targetSphericalRadius));
+                    touchStartDist = dist;
+                }
+                updateCameraPosition();
+            }, { passive: true });
+
+            domElement.addEventListener('touchend', () => { isDragging = false; });
+            updateCameraPosition();
+        }
+
+        function updateCameraPosition() {
+            camera.position.setFromSpherical(spherical).add(camTarget);
+            camera.lookAt(camTarget);
+        }
+
+        function calculateAutoFitCameraTarget() {
+            if (!autoFitCameraEnabled || isDragging || cultures.length === 0) return;
+
+            const center = new THREE.Vector3(0, 0, 0);
+            cultures.forEach(c => center.add(c.position));
+            center.divideScalar(cultures.length);
+
+            let maxBoundaryDist = 0;
+            cultures.forEach(c => {
+                const distToCenter = c.position.distanceTo(center);
+                const totalDist = distToCenter + c.radius + 6.0;
+                if (totalDist > maxBoundaryDist) {
+                    maxBoundaryDist = totalDist;
+                }
+            });
+
+            const aspect = camera.aspect || 1.0;
+            const fovRad = THREE.MathUtils.degToRad(camera.fov);
+            
+            const requiredDistV = maxBoundaryDist / Math.sin(fovRad / 2);
+            const requiredDistH = maxBoundaryDist / Math.sin(Math.atan(Math.tan(fovRad / 2) * aspect));
+            
+            const calculatedRadius = Math.max(45, Math.max(requiredDistV, requiredDistH));
+
+            targetSphericalRadius = calculatedRadius;
+            targetCamTarget.copy(center);
+        }
+
+        function updateSmoothCameraMotion() {
+            calculateAutoFitCameraTarget();
+
+            spherical.radius += (targetSphericalRadius - spherical.radius) * 0.04;
+            camTarget.lerp(targetCamTarget, 0.04);
+            
+            updateCameraPosition();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        /**
+         * ==========================================
+         * MAIN BEAT SEQUENCER & DISSONANCE ENGINE
+         * ==========================================
+         */
+        let beatTimer = null;
+        let globalTickCounter = 0;
+
+        function startSimulation() {
+            if (simRunning) return;
+            simRunning = true;
+
+            if (cultures.length === 0) {
+                const initialCulture = new Culture(globalCultureIdCounter++, new THREE.Vector3(0, 0, 0), 0);
+                cultures.push(initialCulture);
+                updateCultureUIList();
+                addLogEvent('シミュレーション開始', '生命と文化の第一歩が刻まれ始めました。', 'color: var(--cyan-accent);');
+            }
+
+            scheduleNextBeat();
+        }
+
+        function scheduleNextBeat() {
+            if (!simRunning || inBattleMode) return;
+            const intervalMs = (60 / bpm) * 1000 / 4;
+            beatTimer = setTimeout(() => {
+                onBeatTick();
+                scheduleNextBeat();
+            }, intervalMs);
+        }
+
+        function onBeatTick() {
+            if (inBattleMode) return;
+            globalTickCounter++;
+            const subBeatIndex = (globalTickCounter - 1) % 16;
+
+            // 各小節の1拍目 (subBeatIndex === 0) で不協和度判定
+            if (subBeatIndex === 0 && cultures.length >= 2 && globalDissonance > 0) {
+                if (Math.random() * 100 < globalDissonance) {
+                    // 不協和度 × 50% の確率で「決戦」モード発動
+                    const decisiveBattleChance = globalDissonance * 0.5;
+                    if (Math.random() * 100 < decisiveBattleChance) {
+                        triggerDecisiveBattleEvent();
+                    } else {
+                        // バトルモード廃止に伴い、全体の25%をランダム消滅
+                        triggerRandomCullEvent();
+                    }
+                    return;
+                }
+            }
+
+            const simultaneousNotes = [];
+            for (let i = cultures.length - 1; i >= 0; i--) {
+                const c = cultures[i];
+                const spawned = c.tick(subBeatIndex);
+                if (spawned && spawned.length > 0) {
+                    simultaneousNotes.push(...spawned);
+                }
+            }
+
+            if (simultaneousNotes.length >= 2) {
+                const activeCultures = new Set(simultaneousNotes.map(n => n.cultureId));
+
+                if (activeCultures.size >= 2) {
+                    let addedDissonance = 0;
+                    for (let i = 0; i < simultaneousNotes.length; i++) {
+                        for (let j = i + 1; j < simultaneousNotes.length; j++) {
+                            const n1 = simultaneousNotes[i];
+                            const n2 = simultaneousNotes[j];
+
+                            if (n1.cultureId !== n2.cultureId) {
+                                const interval = Math.abs(n1.semitone - n2.semitone);
+                                
+                                if (interval === 1 || interval === 13) {
+                                    addedDissonance += 5;
+                                    addLogEvent('不協和音 (+5%)', `同時発音: 短2度/短9度 (${interval}半音)`, 'color: var(--red-accent);');
+                                } 
+                                else if (interval === 2 || interval === 14 || interval === 10 || interval === 11) {
+                                    addedDissonance += 0.1;
+                                    addLogEvent('不協和音 (+0.1%)', `同時発音: 2度/7度/9度 (${interval}半音)`, 'color: var(--gold-accent);');
+                                }
+                            }
+                        }
+                    }
+                    if (addedDissonance > 0) {
+                        globalDissonance = Math.min(100, globalDissonance + addedDissonance);
+                    }
+                }
+            }
+
+            checkFusionMechanics();
+            updateHUDStats();
+        }
+
+        /**
+         * ==========================================
+         * RANDOM CULL (25% EXTINCTION) & DECISIVE BATTLE
+         * ==========================================
+         */
+
+        // 全体の25%をランダム消滅させるイベント処理
+        function triggerRandomCullEvent() {
+            if (cultures.length === 0) return;
+
+            // 全体の文化数の25%（最低1個）
+            const countToDestroy = Math.max(1, Math.ceil(cultures.length * 0.25));
+
+            // ランダムに選出
+            const shuffled = [...cultures].sort(() => 0.5 - Math.random());
+            const victims = shuffled.slice(0, countToDestroy);
+            const victimNames = victims.map(c => c.name).join(', ');
+
+            victims.forEach(victim => {
+                createBurstParticles(victim.position, new THREE.Color(0xff2200), 55);
+                victim.destroy();
+                cultures = cultures.filter(c => c.id !== victim.id);
+            });
+
+            triggerExplosionSound();
+            cameraShake = 2.0;
+
+            // 崩壊後に不協和度をリセット
+            globalDissonance = 0;
+
+            addLogEvent('不協和惨禍 [25% 消滅]', `不協和の崩壊現象が発生。全文化の25%（${countToDestroy}文明: ${victimNames}）がランダム消滅しました。`, 'color: var(--red-accent); font-weight: bold;');
+
+            updateCultureUIList();
+            updateHUDStats();
+        }
+
+        function playBattleSequence(sequenceList, onFinished) {
+            let listIndex = 0;
+
+            function playNextGroup() {
+                if (listIndex >= sequenceList.length) {
+                    onFinished();
+                    return;
+                }
+
+                const currentGroup = sequenceList[listIndex];
+                const statusElem = document.getElementById('battle-status');
+                
+                const groupNames = currentGroup.cultures.map(c => c.name).join(' & ');
+                statusElem.innerHTML = `<i class="fa-solid fa-volume-high" style="color: var(--cyan-accent);"></i> 演奏中 [${currentGroup.label}]: <strong>${groupNames}</strong>`;
+
+                if (currentGroup.cultures.length === 1) {
+                    focusOnCulture(currentGroup.cultures[0].id);
+                }
+
+                let subBeat = 0;
+                const totalBeatsToPlay = currentGroup.beatsToPlay;
+                let beatCount = 0;
+
+                const stepInterval = (60 / bpm) * 1000 / 4;
+
+                const stepTimer = setInterval(() => {
+                    currentGroup.cultures.forEach(c => c.tick(subBeat % 16, true));
+
+                    subBeat++;
+                    beatCount++;
+
+                    if (beatCount >= totalBeatsToPlay) {
+                        clearInterval(stepTimer);
+                        listIndex++;
+                        setTimeout(playNextGroup, 600);
+                    }
+                }, stepInterval);
+            }
+
+            playNextGroup();
+        }
+
+        function triggerDecisiveBattleEvent() {
+            if (cultures.length < 2) return;
+            inBattleMode = true;
+            if (beatTimer) clearTimeout(beatTimer);
+
+            triggerExplosionSound();
+            cameraShake = 3.5;
+
+            addLogEvent('決戦発動 [DECISIVE BATTLE]', `不協和度×50%判定を突破し「決戦」モードが発動！全文化が2勢力に分かれて対峙します！`, 'color: var(--red-accent); font-weight: bold; font-size: 0.85rem;');
+
+            const shuffled = [...cultures].sort(() => 0.5 - Math.random());
+            const half = Math.ceil(shuffled.length / 2);
+            const factionA = shuffled.slice(0, half);
+            const factionB = shuffled.slice(half);
+
+            const modal = document.getElementById('modal-battle-mode');
+            const titleElem = document.getElementById('battle-modal-title');
+            const descElem = document.getElementById('battle-modal-desc');
+            const choicesElem = document.getElementById('battle-choices');
+            const statusElem = document.getElementById('battle-status');
+
+            titleElem.innerHTML = `<i class="fa-solid fa-fire-flame-curved" style="margin-right: 10px; color: #ff007f;"></i>決戦モード発動`;
+            descElem.textContent = `全文化が2つの勢力に分かれました。勢力ごとの合同演奏を試聴しています...`;
+            choicesElem.innerHTML = '';
+            statusElem.style.display = 'block';
+            modal.classList.remove('hidden');
+
+            const sequenceList = [
+                { label: '勢力 ALPHA', cultures: factionA, beatsToPlay: 24 },
+                { label: '勢力 BETA', cultures: factionB, beatsToPlay: 24 }
+            ];
+
+            playBattleSequence(sequenceList, () => {
+                statusElem.innerHTML = `<i class="fa-solid fa-crown" style="color: var(--purple-accent);"></i> 神の決断`;
+                descElem.textContent = `おお、神よ！どちらの勢力を滅ぼしますか？`;
+
+                window._currentFactionA = factionA;
+                window._currentFactionB = factionB;
+
+                choicesElem.innerHTML = `
+                    <button class="battle-choice-btn" onclick="resolveDecisiveBattle('A')">
+                        <i class="fa-solid fa-skull-crossbones" style="font-size: 1.5rem; color: var(--red-accent);"></i>
+                        <span>勢力 ALPHA を滅ぼす</span>
+                        <small style="font-weight: normal; color: var(--text-muted);">${factionA.map(c => c.name).join(', ')}</small>
+                    </button>
+                    <button class="battle-choice-btn" onclick="resolveDecisiveBattle('B')">
+                        <i class="fa-solid fa-skull-crossbones" style="font-size: 1.5rem; color: var(--red-accent);"></i>
+                        <span>勢力 BETA を滅ぼす</span>
+                        <small style="font-weight: normal; color: var(--text-muted);">${factionB.map(c => c.name).join(', ')}</small>
+                    </button>
+                `;
+            });
+        }
+
+        window.resolveDecisiveBattle = function(destroyTarget) {
+            const victimFaction = destroyTarget === 'A' ? window._currentFactionA : window._currentFactionB;
+            const survivorFaction = destroyTarget === 'A' ? window._currentFactionB : window._currentFactionA;
+
+            if (victimFaction) {
+                victimFaction.forEach(victim => {
+                    createBurstParticles(victim.position, new THREE.Color(0xff2200), 60);
+                    victim.destroy();
+                    cultures = cultures.filter(c => c.id !== victim.id);
+                });
+            }
+
+            if (survivorFaction) {
+                survivorFaction.forEach(survivor => {
+                    survivor.bars = Math.max(1, Math.floor(survivor.bars / 2));
+                });
+            }
+
+            globalDissonance = 0;
+            inBattleMode = false;
+
+            document.getElementById('modal-battle-mode').classList.add('hidden');
+            addLogEvent('決戦完了', `選択された勢力が全滅し、生存勢力の小節数が半減して存続しました。`, 'color: var(--purple-accent);');
+
+            updateCultureUIList();
+            updateHUDStats();
+            scheduleNextBeat();
+        };
+
+        function toggleSimulation() {
+            simRunning = !simRunning;
+            const icon = document.getElementById('icon-play-pause');
+            if (simRunning) {
+                icon.className = 'fa-solid fa-pause';
+                if (!inBattleMode) scheduleNextBeat();
+            } else {
+                icon.className = 'fa-solid fa-play';
+                if (beatTimer) clearTimeout(beatTimer);
+            }
+        }
+
+        /**
+         * ==========================================
+         * RENDER ANIMATION LOOP
+         * ==========================================
+         */
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (cameraShake > 0) {
+                camera.position.x += (Math.random() - 0.5) * cameraShake;
+                camera.position.y += (Math.random() - 0.5) * cameraShake;
+                camera.position.z += (Math.random() - 0.5) * cameraShake;
+                cameraShake *= 0.88;
+                if (cameraShake < 0.01) cameraShake = 0;
+            }
+
+            updateSmoothCameraMotion();
+
+            for (let c of cultures) {
+                c.update3DScales();
+                c.group.rotation.y += 0.003;
+            }
+
+            updateParticles();
+            renderer.render(scene, camera);
+        }
+
+        /**
+         * ==========================================
+         * UI UPDATES & LOG FEEDS
+         * ==========================================
+         */
+        function addLogEvent(title, detail, styleStr = '') {
+            const logContainer = document.getElementById('log-container');
+            const timeStr = new Date().toLocaleTimeString('ja-JP', { hour12: false });
+
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            logItem.innerHTML = `
+                <div class="log-head">
+                    <span style="${styleStr}">${title}</span>
+                    <span class="log-time">${timeStr}</span>
+                </div>
+                <div style="color: #cbd5e1;">${detail}</div>
+            `;
+
+            logContainer.prepend(logItem);
+            if (logContainer.children.length > 40) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+
+            document.getElementById('log-count').innerText = `${logContainer.children.length} EVENTS`;
+        }
+
+        function updateHUDStats() {
+            document.getElementById('stat-cultures').innerText = cultures.length;
+            const totalNotes = cultures.reduce((sum, c) => sum + c.notes.length, 0);
+            document.getElementById('stat-notes').innerText = totalNotes;
+
+            const dissElem = document.getElementById('stat-dissonance');
+            if (dissElem) {
+                dissElem.innerText = `${globalDissonance.toFixed(1)}%`;
+            }
+
+            updateTensionBanner();
+        }
+
+        function updateTensionBanner() {
+            const banner = document.getElementById('tension-banner');
+            const icon = document.getElementById('tension-icon');
+            const label = document.getElementById('tension-label');
+            if (!banner || !icon || !label) return;
+
+            const d = globalDissonance;
+
+            if (d >= 40) {
+                banner.className = 'glass-panel tension-banner tension-danger';
+                icon.className = 'fa-solid fa-radiation';
+                label.innerText = '危険 [DANGER]';
+            } else if (d >= 30) {
+                banner.className = 'glass-panel tension-banner tension-warning';
+                icon.className = 'fa-solid fa-triangle-exclamation';
+                label.innerText = '警告 [WARNING]';
+            } else if (d >= 20) {
+                banner.className = 'glass-panel tension-banner tension-caution';
+                icon.className = 'fa-solid fa-circle-exclamation';
+                label.innerText = '注意 [CAUTION]';
+            } else {
+                banner.className = 'glass-panel tension-banner tension-stable';
+                icon.className = 'fa-solid fa-shield-halved';
+                label.innerText = '平穏 [STABLE]';
+            }
+        }
+
+        function updateCultureUIList() {
+            const container = document.getElementById('cultures-container');
+            container.innerHTML = '';
+
+            cultures.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'culture-card';
+                card.innerHTML = `
+                    <div class="card-head">
+                        <span class="card-title">${c.name}</span>
+                        <span class="stage-badge" style="background: ${STAGE_COLORS[c.level]}22; color: ${STAGE_COLORS[c.level]}; border: 1px solid ${STAGE_COLORS[c.level]};">
+                            ${STAGE_NAMES[c.level]}
+                        </span>
+                    </div>
+                    <div class="card-details">
+                        <span>小節: <strong>${c.bars}</strong> / ${c.maxBars}</span>
+                        <span>生存: <strong style="color: ${c.totalBarsLived >= 24 ? '#ff5555' : 'inherit'};">${c.totalBarsLived}</strong>/32小節</span>
+                        <span>人口: <strong>${c.notes.length}</strong></span>
+                        <span>スケール: ${c.elements[0].scaleName}</span>
+                    </div>
+                    <div style="margin-top: 6px; text-align: right;">
+                        <button class="focus-btn" onclick="focusOnCulture(${c.id})"><i class="fa-solid fa-crosshairs"></i> フォーカス</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.focusOnCulture = function(id) {
+            const c = cultures.find(item => item.id === id);
+            if (c) {
+                targetCamTarget.copy(c.position);
+                targetSphericalRadius = Math.max(25, c.radius * 4);
+                autoFitCameraEnabled = false;
+                const autofitBtn = document.getElementById('btn-toggle-autofit');
+                if (autofitBtn) autofitBtn.classList.remove('active');
+            }
+        };
+
+        function setupCultureControlUI() {
+            const scaleGrid = document.getElementById('scale-filter-grid');
+            const rhythmGrid = document.getElementById('rhythm-filter-grid');
+
+            Object.keys(BASE_PITCHES).forEach(scaleName => {
+                const chip = document.createElement('div');
+                chip.className = 'toggle-chip active';
+                chip.textContent = scaleName;
+                chip.onclick = () => {
+                    if (activeScales.has(scaleName)) {
+                        if (activeScales.size > 1) {
+                            activeScales.delete(scaleName);
+                            chip.classList.remove('active');
+                        }
+                    } else {
+                        activeScales.add(scaleName);
+                        chip.classList.add('active');
+                    }
+                };
+                scaleGrid.appendChild(chip);
+            });
+
+            Object.keys(RHYTHM_PATTERNS).forEach(rhythmName => {
+                const chip = document.createElement('div');
+                chip.className = 'toggle-chip active';
+                chip.textContent = rhythmName;
+                chip.onclick = () => {
+                    if (activeRhythms.has(rhythmName)) {
+                        if (activeRhythms.size > 1) {
+                            activeRhythms.delete(rhythmName);
+                            chip.classList.remove('active');
+                        }
+                    } else {
+                        activeRhythms.add(rhythmName);
+                        chip.classList.add('active');
+                    }
+                };
+                rhythmGrid.appendChild(chip);
+            });
+
+            const controlModal = document.getElementById('modal-culture-control');
+            document.getElementById('btn-open-control').onclick = () => {
+                controlModal.classList.remove('hidden');
+            };
+            document.getElementById('btn-close-control-modal').onclick = () => {
+                controlModal.classList.add('hidden');
+            };
+        }
+
+        /**
+         * ==========================================
+         * DOM INITIALIZATION
+         * ==========================================
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            init3DScene();
+            animate();
+            setupCultureControlUI();
+
+            document.getElementById('btn-start').addEventListener('click', () => {
+                initAudioEngine();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const overlay = document.getElementById('start-overlay');
+                overlay.classList.add('hidden');
+
+                setTimeout(() => {
+                    startSimulation();
+                }, 300);
+            });
+
+            document.getElementById('btn-toggle-sim').addEventListener('click', toggleSimulation);
+
+            document.getElementById('input-bpm').addEventListener('input', (e) => {
+                bpm = parseInt(e.target.value);
+                document.getElementById('val-bpm').innerText = bpm;
+            });
+
+            document.getElementById('input-vol').addEventListener('input', (e) => {
+                if (masterGain && audioCtx) {
+                    masterGain.gain.setValueAtTime(parseFloat(e.target.value), audioCtx.currentTime);
+                }
+            });
+
+            const autofitBtn = document.getElementById('btn-toggle-autofit');
+            autofitBtn.addEventListener('click', () => {
+                autoFitCameraEnabled = !autoFitCameraEnabled;
+                if (autoFitCameraEnabled) {
+                    autofitBtn.classList.add('active');
+                } else {
+                    autofitBtn.classList.remove('active');
+                }
+            });
+
+            document.getElementById('btn-add-culture').addEventListener('click', () => {
+                const spawnPos = findNonOverlappingPosition(new THREE.Vector3(0, 0, 0), 3);
+                const newCulture = new Culture(globalCultureIdCounter++, spawnPos, 0);
+                cultures.push(newCulture);
+                updateCultureUIList();
+                addLogEvent('文化創生', `新たな文化圏 (${newCulture.name}) を手動で創生しました。`, 'color: var(--cyan-accent);');
+            });
+
+            document.getElementById('btn-camera-reset').addEventListener('click', () => {
+                autoFitCameraEnabled = true;
+                autofitBtn.classList.add('active');
+                targetCamTarget.set(0, 0, 0);
+                targetSphericalRadius = 75;
+                spherical.theta = Math.PI / 4;
+                spherical.phi = Math.PI / 4;
+            });
+        });
+    </script>
+</body>
+</html>
