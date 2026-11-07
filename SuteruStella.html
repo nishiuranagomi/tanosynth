@@ -17,6 +17,7 @@
     <!-- ======================================================= -->
 
     <title>Steru Stella</title>
+
     <!-- Three.js for 3D Space Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Font Awesome Icons -->
@@ -313,6 +314,56 @@
             background: rgba(0, 240, 255, 0.15);
         }
 
+        /* Era Selector Cards */
+        .era-select-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .era-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .era-card:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .era-card.active {
+            border-color: var(--cyan-accent);
+            background: rgba(0, 240, 255, 0.18);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+        }
+
+        .era-title {
+            font-size: 0.78rem;
+            font-weight: bold;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .era-card.active .era-title {
+            color: var(--cyan-accent);
+        }
+
+        .era-desc {
+            font-size: 0.63rem;
+            color: var(--text-muted);
+            line-height: 1.2;
+        }
+
         /* Cards & Log Items */
         .culture-card {
             background: rgba(15, 23, 42, 0.6);
@@ -421,14 +472,14 @@
         }
 
         .modal-box {
-            max-width: 520px;
+            max-width: 540px;
             width: 100%;
             padding: clamp(16px, 4vw, 24px);
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            max-height: 85vh;
-            overflow: hidden;
+            gap: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -442,11 +493,9 @@
         }
 
         .modal-body {
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            padding-right: 2px;
+            gap: 12px;
         }
 
         .start-btn {
@@ -462,6 +511,7 @@
             cursor: pointer;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
             transition: transform 0.2s;
+            margin-top: 4px;
         }
 
         .start-btn:hover { transform: scale(1.02); }
@@ -539,6 +589,31 @@
             font-weight: bold;
         }
 
+        /* Rhythm Status Indicator Box */
+        .drum-status-badge {
+            font-family: monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .drum-chip {
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+
+        }
+
+        .drum-chip.active {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: var(--cyan-accent);
+            color: var(--cyan-accent);
+            font-weight: bold;
+        }
+
         /* Scrollbars */
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -587,7 +662,10 @@
                 width: 45px !important;
             }
 
-            /* モバイル環境ではワークスペースを上下配置にし、高さ・幅を割合指定 */
+            .era-select-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
             .workspace {
                 flex-direction: column;
                 justify-content: flex-end;
@@ -597,14 +675,13 @@
             .sidebar {
                 width: 100% !important;
                 max-width: 100%;
-                max-height: 28vh; /* 画面高さの28%に抑えて3D領域を確保 */
+                max-height: 28vh;
             }
 
             .sidebar-content {
                 max-height: 20vh;
             }
 
-            /* モバイル表示時、デフォルトで最小化された場合のスタイル */
             .sidebar.collapsed {
                 max-height: 36px !important;
             }
@@ -614,34 +691,69 @@
             }
 
             footer {
-                display: none; /* スマホ画面では領域確保のためフッター非表示 */
+                display: none;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Start Overlay for Web Audio Unlock -->
+    <!-- Start Overlay for Web Audio Unlock & Era Selection -->
     <div id="start-overlay" class="modal-backdrop">
         <div class="glass-panel modal-box" style="text-align: center;">
-            <div style="font-size: 2.5rem; color: var(--cyan-accent);">
+            <div style="font-size: 2.2rem; color: var(--cyan-accent);">
                 <i class="fa-solid fa-dna"></i>
             </div>
             <div>
-                <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 6px;">
-                    SteruStella
+                <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 4px;">
+                    AETHERIA
                 </h1>
-                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.3;">
                     3D Life & Music Simulator
                 </p>
             </div>
-            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; text-align: left; font-size: 0.7rem; color: #cbd5e1; line-height: 1.5;">
-                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 途上国(4Beat) → 新興国(8Beat) → 先進国(16Beat)</div>
-                <div><strong style="color: var(--gold-accent);">・発展/革命:</strong> 8小節上限で50%発展 / 50%革命</div>
-                <div><strong style="color: #ff5555;">・自然衰退:</strong> 累計32小節経過で自然消滅（融合でリセット）</div>
-                <div><strong style="color: var(--purple-accent);">・融合 (1%):</strong> 球体同士の接触で統合超文化へ昇華</div>
-                <div><strong style="color: var(--red-accent);">・衝突/決戦:</strong> 不協和度により25%消滅、または決戦(不協和度×50%)が発動</div>
+
+            <!-- Era Selection UI -->
+            <div style="text-align: left; margin: 4px 0;">
+                <div style="font-size: 0.75rem; color: var(--cyan-accent); font-weight: bold; margin-bottom: 6px; font-family: 'Orbitron', sans-serif;">
+                    <i class="fa-solid fa-hourglass-half" style="margin-right: 4px;"></i> 時代の選択 [ERA SELECTION]
+                </div>
+                <div class="era-select-grid">
+                    <div class="era-card active" data-era="peaceful">
+                        <input type="radio" name="era" value="peaceful" checked hidden>
+                        <div class="era-title"><i class="fa-solid fa-dove" style="color: var(--cyan-accent);"></i> 平和な時代</div>
+                        <div class="era-desc">音階: <strong>Stacked 5th</strong> のみ使用</div>
+                    </div>
+                    <div class="era-card" data-era="stable">
+                        <input type="radio" name="era" value="stable" hidden>
+                        <div class="era-title"><i class="fa-solid fa-shield-halved" style="color: var(--gold-accent);"></i> 安定の時代</div>
+                        <div class="era-desc">音階: <strong>Stacked 4th, Cマイナーペンタ</strong></div>
+                    </div>
+                    <div class="era-card" data-era="discord">
+                        <input type="radio" name="era" value="discord" hidden>
+                        <div class="era-title"><i class="fa-solid fa-bolt" style="color: var(--pink-accent);"></i> 不和の時代</div>
+                        <div class="era-desc">音階: 全スケールを使用（通常）</div>
+                    </div>
+                    <div class="era-card" data-era="conflict">
+                        <input type="radio" name="era" value="conflict" hidden>
+                        <div class="era-title"><i class="fa-solid fa-fire" style="color: var(--red-accent);"></i> 衝突の時代</div>
+                        <div class="era-desc">音階: 全スケール / <strong>不協和度上昇率2倍</strong></div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Rules Summary -->
+            <div style="background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 8px; text-align: left; font-size: 0.68rem; color: #cbd5e1; line-height: 1.45;">
+                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 途上国(4Beat) → 新興国(8Beat) → 先進国(16Beat)</div>
+                <div><strong style="color: var(--gold-accent);">・自然衰退/融合:</strong> 32小節で消滅 / 接触時1%で統合超文化へ昇華</div>
+                <div><strong style="color: #ff007f;">・TR-808 リズム層:</strong> 
+                    N≥100(<span style="color:var(--cyan-accent)">BD</span>) / 
+                    N≥150(<span style="color:var(--gold-accent)">SD</span>) / 
+                    N≥200(<span style="color:var(--pink-accent)">8分HH</span>) / 
+                    N≥250(<span style="color:var(--red-accent)">16分HH</span>)
+                </div>
+            </div>
+
             <button id="btn-start" class="start-btn">
                 <i class="fa-solid fa-play" style="margin-right: 6px;"></i> シミュレーション開始
             </button>
@@ -703,7 +815,7 @@
             <div class="glass-panel brand-box">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan-accent); box-shadow: 0 0 6px var(--cyan-accent);"></div>
-                    <div class="brand-title">SteruStella</div>
+                    <div class="brand-title">AETHERIA</div>
                 </div>
                 <div class="brand-metrics">
                     <span>C: <span id="stat-cultures" class="metric-val" style="color: var(--cyan-accent);">0</span></span>
@@ -715,7 +827,7 @@
             <!-- Tension Level Banner -->
             <div id="tension-banner" class="glass-panel tension-banner tension-stable">
                 <i id="tension-icon" class="fa-solid fa-shield-halved"></i>
-                <span>緊張度:</span>
+                <span>時代: <strong id="era-label" style="color: var(--cyan-accent);">平和</strong> | 緊張度:</span>
                 <strong id="tension-label">平穏 [STABLE]</strong>
             </div>
 
@@ -734,6 +846,13 @@
                 <div class="slider-group">
                     <i class="fa-solid fa-volume-high" style="color: var(--cyan-accent);"></i>
                     <input type="range" id="input-vol" min="0" max="1" step="0.01" value="0.7" style="width: 45px;">
+                </div>
+
+                <!-- Drum Layer Status -->
+                <div class="drum-status-badge">
+                    <span id="badge-bd" class="drum-chip">BD</span>
+                    <span id="badge-sd" class="drum-chip">SD</span>
+                    <span id="badge-hh" class="drum-chip">HH</span>
                 </div>
 
                 <button id="btn-toggle-autofit" class="action-btn active" title="全文化オートフィットカメラ">
@@ -822,6 +941,34 @@
             'Funk':       [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]
         };
 
+        // Preset 16-step patterns for TR-808 BD and SD matching each rhythm
+        const DRUM_PATTERNS = {
+            'Latin': {
+                BD: [1, 0, 0, 1,  0, 0, 1, 0,  1, 0, 0, 1,  0, 0, 1, 0],
+                SD: [0, 0, 0, 0,  1, 0, 0, 1,  0, 1, 0, 0,  1, 0, 0, 0]
+            },
+            'Samba': {
+                BD: [1, 0, 0, 1,  1, 0, 0, 1,  1, 0, 0, 1,  1, 0, 0, 1],
+                SD: [0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0,  0, 0, 1, 0]
+            },
+            'Bossa Nova': {
+                BD: [1, 0, 0, 0,  0, 0, 1, 0,  1, 0, 0, 0,  0, 0, 1, 0],
+                SD: [0, 0, 0, 1,  0, 0, 1, 0,  0, 0, 0, 1,  0, 0, 1, 0]
+            },
+            'Rock': {
+                BD: [1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 1, 0,  0, 0, 0, 0],
+                SD: [0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0]
+            },
+            'Shuffle': {
+                BD: [1, 0, 0, 0,  0, 0, 1, 0,  1, 0, 0, 0,  0, 0, 0, 0],
+                SD: [0, 0, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  1, 0, 0, 0]
+            },
+            'Funk': {
+                BD: [1, 0, 0, 1,  0, 0, 0, 0,  0, 1, 1, 0,  0, 0, 0, 0],
+                SD: [0, 0, 0, 0,  1, 0, 0, 1,  0, 0, 0, 0,  1, 0, 1, 0]
+            }
+        };
+
         const activeScales = new Set(Object.keys(BASE_PITCHES));
         const activeRhythms = new Set(Object.keys(RHYTHM_PATTERNS));
 
@@ -833,6 +980,33 @@
         const STAGE_BEATS = [4, 8, 16];
         const STAGE_ATTACKS = [0.100, 0.050, 0.001];
         const STAGE_REVERBS = [0.075, 0.30, 0.60];
+
+        // Era State Variables
+        let selectedEra = 'peaceful';
+        let dissonanceMultiplier = 1.0;
+
+        const ERA_CONFIGS = {
+            'peaceful': {
+                name: '平和な時代',
+                scales: ['Stacked 5th'],
+                dissonanceMult: 1.0
+            },
+            'stable': {
+                name: '安定の時代',
+                scales: ['Stacked 4th', 'Cマイナーペンタトニック'],
+                dissonanceMult: 1.0
+            },
+            'discord': {
+                name: '不和の時代',
+                scales: Object.keys(BASE_PITCHES),
+                dissonanceMult: 1.0
+            },
+            'conflict': {
+                name: '衝突の時代',
+                scales: Object.keys(BASE_PITCHES),
+                dissonanceMult: 2.0
+            }
+        };
 
         /**
          * ==========================================
@@ -856,7 +1030,7 @@
 
         /**
          * ==========================================
-         * WEB AUDIO SYNTHESIZER & CONVOLUTION REVERB
+         * WEB AUDIO SYNTHESIZER & TR-808 DRUM ENGINE
          * ==========================================
          */
         let audioCtx = null;
@@ -945,11 +1119,121 @@
             osc.stop(now + attackTime + 0.85);
         }
 
+        /* --- TR-808 SYNTHESIZER DRUM SOUNDS --- */
+        
+        // TR-808 Bass Drum (Pitch Sweep + Exponential Decay)
+        function trigger808BD() {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            const now = audioCtx.currentTime;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(42, now + 0.08);
+
+            gain.gain.setValueAtTime(0.85, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(now);
+            osc.stop(now + 0.40);
+        }
+
+        // TR-808 Snare Drum (White Noise Highpass + Tonal Body)
+        function trigger808SD() {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            const now = audioCtx.currentTime;
+
+            // 1. Snappy Noise Component
+            const bufferSize = Math.floor(audioCtx.sampleRate * 0.18);
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'highpass';
+            noiseFilter.frequency.setValueAtTime(1100, now);
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.45, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(masterGain);
+
+            // 2. Dual Oscillator Tonal Body
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const toneGain = audioCtx.createGain();
+
+            osc1.type = 'triangle';
+            osc2.type = 'triangle';
+            osc1.frequency.setValueAtTime(180, now);
+            osc2.frequency.setValueAtTime(330, now);
+            osc1.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+            osc2.frequency.exponentialRampToValueAtTime(120, now + 0.1);
+
+            toneGain.gain.setValueAtTime(0.35, now);
+            toneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+            osc1.connect(toneGain);
+            osc2.connect(toneGain);
+            toneGain.connect(masterGain);
+
+            noise.start(now);
+            osc1.start(now);
+            osc2.start(now);
+            noise.stop(now + 0.19);
+            osc1.stop(now + 0.19);
+            osc2.stop(now + 0.19);
+        }
+
+        // TR-808 Hi-Hat (Filtered Metallic White Noise)
+        function trigger808HH() {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            const now = audioCtx.currentTime;
+
+            const bufferSize = Math.floor(audioCtx.sampleRate * 0.06);
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(7500, now);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+
+            noise.start(now);
+            noise.stop(now + 0.05);
+        }
+
         function triggerExplosionSound() {
             if (!audioCtx || audioCtx.state !== 'running') return;
             const now = audioCtx.currentTime;
 
-            const bufferSize = audioCtx.sampleRate * 1.5;
+            const bufferSize = Math.floor(audioCtx.sampleRate * 1.5);
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const output = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
@@ -1029,6 +1313,25 @@
                     envAmount: randomRange(500, 4000)
                 }
             };
+        }
+
+        function getDominantRhythmName() {
+            if (cultures.length === 0) return 'Rock';
+            const counts = {};
+            for (let c of cultures) {
+                for (let el of c.elements) {
+                    counts[el.rhythmName] = (counts[el.rhythmName] || 0) + 1;
+                }
+            }
+            let maxCount = -1;
+            let dominant = 'Rock';
+            for (let r in counts) {
+                if (counts[r] > maxCount) {
+                    maxCount = counts[r];
+                    dominant = r;
+                }
+            }
+            return dominant;
         }
 
         class Culture {
@@ -1551,7 +1854,9 @@
             const requiredDistV = maxBoundaryDist / Math.sin(fovRad / 2);
             const requiredDistH = maxBoundaryDist / Math.sin(Math.atan(Math.tan(fovRad / 2) * aspect));
             
-            const calculatedRadius = Math.max(45, Math.max(requiredDistV, requiredDistH));
+            // FogExp2(density = 0.008)において、視認性（輝度）が50%以上維持される限界距離: R = -ln(0.5) / 0.008 ≈ 86.64
+            const maxAutoCameraRadius = -Math.log(0.5) / 0.008;
+            const calculatedRadius = Math.min(maxAutoCameraRadius, Math.max(45, Math.max(requiredDistV, requiredDistH)));
 
             targetSphericalRadius = calculatedRadius;
             targetCamTarget.copy(center);
@@ -1574,6 +1879,42 @@
 
         /**
          * ==========================================
+         * ERA MANAGEMENT & SETUP
+         * ==========================================
+         */
+        function applyEraConfig(eraKey) {
+            const config = ERA_CONFIGS[eraKey] || ERA_CONFIGS['peaceful'];
+            selectedEra = eraKey;
+            dissonanceMultiplier = config.dissonanceMult;
+
+            activeScales.clear();
+            config.scales.forEach(s => activeScales.add(s));
+
+            const labelElem = document.getElementById('era-label');
+            if (labelElem) {
+                labelElem.innerText = config.name.replace('の時代', '');
+            }
+
+            refreshControlModalUI();
+        }
+
+        function setupEraSelectorUI() {
+            const eraCards = document.querySelectorAll('.era-card');
+            eraCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    eraCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    const radio = card.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        selectedEra = radio.value;
+                    }
+                });
+            });
+        }
+
+        /**
+         * ==========================================
          * MAIN BEAT SEQUENCER & DISSONANCE ENGINE
          * ==========================================
          */
@@ -1584,14 +1925,15 @@
             if (simRunning) return;
             simRunning = true;
 
+            applyEraConfig(selectedEra);
+
             if (cultures.length === 0) {
                 const initialCulture = new Culture(globalCultureIdCounter++, new THREE.Vector3(0, 0, 0), 0);
                 cultures.push(initialCulture);
                 updateCultureUIList();
-                addLogEvent('シミュレーション開始', '生命と文化の第一歩が刻まれ始めました。', 'color: var(--cyan-accent);');
+                addLogEvent('シミュレーション開始', `時代: 「${ERA_CONFIGS[selectedEra].name}」でスタート。`, 'color: var(--cyan-accent);');
             }
 
-            // モバイル端末（画面幅768px以下）の場合は初期状態でログパネルを最小化して3Dを見やすく設定
             if (window.innerWidth <= 768) {
                 toggleSidebarMinimize('sidebar-logs');
             }
@@ -1626,6 +1968,7 @@
                 }
             }
 
+            // 文化メロディの生成 & 演奏
             const simultaneousNotes = [];
             for (let i = cultures.length - 1; i >= 0; i--) {
                 const c = cultures[i];
@@ -1635,6 +1978,35 @@
                 }
             }
 
+            // --- DRUM RHYTHM PERFORMANCE ENGINE (TR-808) ---
+            const totalNotes = cultures.reduce((sum, c) => sum + c.notes.length, 0);
+            const dominantRhythm = getDominantRhythmName();
+            const drumPattern = DRUM_PATTERNS[dominantRhythm] || DRUM_PATTERNS['Rock'];
+
+            // 1. Bass Drum (N >= 100)
+            if (totalNotes >= 100) {
+                if (drumPattern.BD[subBeatIndex] === 1) {
+                    trigger808BD();
+                }
+            }
+
+            // 2. Snare Drum (N >= 150)
+            if (totalNotes >= 150) {
+                if (drumPattern.SD[subBeatIndex] === 1) {
+                    trigger808SD();
+                }
+            }
+
+            // 3. Hi-Hat (N >= 200: 8分音符 / N >= 250: 16分音符)
+            if (totalNotes >= 250) {
+                trigger808HH();
+            } else if (totalNotes >= 200) {
+                if (subBeatIndex % 2 === 0) {
+                    trigger808HH();
+                }
+            }
+
+            // 不協和度の計算（衝突の時代で上がり方2倍）
             if (simultaneousNotes.length >= 2) {
                 const activeCultures = new Set(simultaneousNotes.map(n => n.cultureId));
 
@@ -1650,17 +2022,18 @@
                                 
                                 if (interval === 1 || interval === 13) {
                                     addedDissonance += 5;
-                                    addLogEvent('不協和音 (+5%)', `同時発音: 短2度/短9度 (${interval}半音)`, 'color: var(--red-accent);');
+                                    addLogEvent('不協和音', `短2度/短9度 (${interval}半音)`, 'color: var(--red-accent);');
                                 } 
                                 else if (interval === 2 || interval === 14 || interval === 10 || interval === 11) {
                                     addedDissonance += 0.1;
-                                    addLogEvent('不協和音 (+0.1%)', `同時発音: 2度/7度/9度 (${interval}半音)`, 'color: var(--gold-accent);');
+                                    addLogEvent('不協和音', `2度/7度/9度 (${interval}半音)`, 'color: var(--gold-accent);');
                                 }
                             }
                         }
                     }
                     if (addedDissonance > 0) {
-                        globalDissonance = Math.min(100, globalDissonance + addedDissonance);
+                        const multipliedAdded = addedDissonance * dissonanceMultiplier;
+                        globalDissonance = Math.min(100, globalDissonance + multipliedAdded);
                     }
                 }
             }
@@ -1693,7 +2066,7 @@
 
             globalDissonance = 0;
 
-            addLogEvent('不協和衝突 [25% 消滅]', `全文化の25%（${countToDestroy}文明: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
+            addLogEvent('不協和惨禍 [25% 消滅]', `全文化の25%（${countToDestroy}文明: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
 
             updateCultureUIList();
             updateHUDStats();
@@ -1900,6 +2273,26 @@
                 dissElem.innerText = `${globalDissonance.toFixed(1)}%`;
             }
 
+            // Update Drum Layer Badges
+            const badgeBD = document.getElementById('badge-bd');
+            const badgeSD = document.getElementById('badge-sd');
+            const badgeHH = document.getElementById('badge-hh');
+
+            if (badgeBD) badgeBD.className = totalNotes >= 100 ? 'drum-chip active' : 'drum-chip';
+            if (badgeSD) badgeSD.className = totalNotes >= 150 ? 'drum-chip active' : 'drum-chip';
+            if (badgeHH) {
+                if (totalNotes >= 250) {
+                    badgeHH.className = 'drum-chip active';
+                    badgeHH.innerText = 'HH 16th';
+                } else if (totalNotes >= 200) {
+                    badgeHH.className = 'drum-chip active';
+                    badgeHH.innerText = 'HH 8th';
+                } else {
+                    badgeHH.className = 'drum-chip';
+                    badgeHH.innerText = 'HH';
+                }
+            }
+
             updateTensionBanner();
         }
 
@@ -1969,13 +2362,29 @@
             }
         };
 
+        function refreshControlModalUI() {
+            const scaleGrid = document.getElementById('scale-filter-grid');
+            if (!scaleGrid) return;
+
+            scaleGrid.querySelectorAll('.toggle-chip').forEach(chip => {
+                const scaleName = chip.textContent;
+                if (activeScales.has(scaleName)) {
+                    chip.classList.add('active');
+                } else {
+                    chip.classList.remove('active');
+                }
+            });
+        }
+
         function setupCultureControlUI() {
             const scaleGrid = document.getElementById('scale-filter-grid');
             const rhythmGrid = document.getElementById('rhythm-filter-grid');
+            scaleGrid.innerHTML = '';
+            rhythmGrid.innerHTML = '';
 
             Object.keys(BASE_PITCHES).forEach(scaleName => {
                 const chip = document.createElement('div');
-                chip.className = 'toggle-chip active';
+                chip.className = activeScales.has(scaleName) ? 'toggle-chip active' : 'toggle-chip';
                 chip.textContent = scaleName;
                 chip.onclick = () => {
                     if (activeScales.has(scaleName)) {
@@ -2026,6 +2435,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             init3DScene();
             animate();
+            setupEraSelectorUI();
             setupCultureControlUI();
 
             document.getElementById('btn-start').addEventListener('click', () => {
