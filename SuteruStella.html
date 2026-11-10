@@ -8,7 +8,7 @@
     <!-- 🎵 Web Synth ポータル用メタデータ                        -->
     <!-- ======================================================= -->
     <meta name="synth-title" content="ステルステラ">
-    <meta name="synth-description" content="成長していく「星のメロディ」を眺めて、時に滅ぼしたり">
+    <meta name="synth-description" content="成長していく「星のメロディ」が奏でる音楽を眺めて、時に滅ぼしたり。">
     <meta name="synth-tags" content="3D, AudioVisual, WebAudio">
     <meta name="synth-color" content="gold">
     <meta name="synth-symbol" content="星">
@@ -706,7 +706,7 @@
             </div>
             <div>
                 <h1 style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: var(--cyan-accent); letter-spacing: 2px; margin-bottom: 4px;">
-                    AETHERIA
+                    Suteru-Stella
                 </h1>
                 <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.3;">
                     3D Life & Music Simulator
@@ -744,7 +744,7 @@
 
             <!-- Rules Summary -->
             <div style="background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 8px; text-align: left; font-size: 0.68rem; color: #cbd5e1; line-height: 1.45;">
-                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 途上国(4Beat) → 新興国(8Beat) → 先進国(16Beat)</div>
+                <div><strong style="color: var(--cyan-accent);">・発展段階:</strong> 途上星(4Beat) → 新興星(8Beat) → 先進星(16Beat)</div>
                 <div><strong style="color: var(--gold-accent);">・自然衰退/融合:</strong> 32小節で消滅 / 接触時1%で統合超文化へ昇華</div>
                 <div><strong style="color: #ff007f;">・TR-808 リズム層:</strong> 
                     N≥100(<span style="color:var(--cyan-accent)">BD</span>) / 
@@ -815,7 +815,7 @@
             <div class="glass-panel brand-box">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--cyan-accent); box-shadow: 0 0 6px var(--cyan-accent);"></div>
-                    <div class="brand-title">AETHERIA</div>
+                    <div class="brand-title">Suteru-Stella</div>
                 </div>
                 <div class="brand-metrics">
                     <span>C: <span id="stat-cultures" class="metric-val" style="color: var(--cyan-accent);">0</span></span>
@@ -874,7 +874,7 @@
             <!-- Left Sidebar: Cultures -->
             <aside id="sidebar-cultures" class="glass-panel sidebar pointer-auto">
                 <div class="sidebar-header">
-                    <span><i class="fa-solid fa-globe"></i> 文明一覧</span>
+                    <span><i class="fa-solid fa-globe"></i> 星一覧</span>
                     <div class="header-actions">
                         <button id="btn-camera-reset" class="focus-btn" title="カメラリセット"><i class="fa-solid fa-arrows-to-eye"></i></button>
                         <button class="minimize-btn" title="最小化/展開" onclick="toggleSidebarMinimize('sidebar-cultures')"><i class="fa-solid fa-minus"></i></button>
@@ -975,7 +975,7 @@
         const CONTOURS = ['Upward Stepwise', 'Upward Leap', 'Downward Stepwise', 'Downward Leap', 'Random'];
         const OSC_TYPES = ['triangle', 'square', 'sawtooth'];
 
-        const STAGE_NAMES = ['途上国', '新興国', '先進国'];
+        const STAGE_NAMES = ['途上星', '新興星', '先進星'];
         const STAGE_COLORS = ['#00f0ff', '#ffb700', '#ff007f'];
         const STAGE_BEATS = [4, 8, 16];
         const STAGE_ATTACKS = [0.100, 0.050, 0.001];
@@ -1337,7 +1337,7 @@
         class Culture {
             constructor(id, position, level = 0) {
                 this.id = id;
-                this.name = `文明 #${id}`;
+                this.name = `星 #${id}`;
                 this.position = position.clone();
                 this.level = level;
                 this.bars = 1;
@@ -2066,7 +2066,7 @@
 
             globalDissonance = 0;
 
-            addLogEvent('不協和惨禍 [25% 消滅]', `全文化の25%（${countToDestroy}文明: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
+            addLogEvent('不協和衝突 [25% 消滅]', `全文化の25%（${countToDestroy}星: ${victimNames}）が消滅。`, 'color: var(--red-accent); font-weight: bold;');
 
             updateCultureUIList();
             updateHUDStats();
@@ -2136,19 +2136,19 @@
             const statusElem = document.getElementById('battle-status');
 
             titleElem.innerHTML = `<i class="fa-solid fa-fire-flame-curved" style="margin-right: 8px; color: #ff007f;"></i>決戦モード発動`;
-            descElem.textContent = `全文化が2つの勢力に分かれました。勢力ごとの合同演奏を試聴しています...`;
+            descElem.textContent = `全ての星が2つの星団に分かれました。星団ごとの合同演奏を試聴しています...`;
             choicesElem.innerHTML = '';
             statusElem.style.display = 'block';
             modal.classList.remove('hidden');
 
             const sequenceList = [
-                { label: '勢力 ALPHA', cultures: factionA, beatsToPlay: 24 },
-                { label: '勢力 BETA', cultures: factionB, beatsToPlay: 24 }
+                { label: '星団A「ステラ・アルファ」', cultures: factionA, beatsToPlay: 24 },
+                { label: '星団B「ステラ・ベータ」', cultures: factionB, beatsToPlay: 24 }
             ];
 
             playBattleSequence(sequenceList, () => {
-                statusElem.innerHTML = `<i class="fa-solid fa-crown" style="color: var(--purple-accent);"></i> 神の決断`;
-                descElem.textContent = `どちらの勢力を滅ぼしますか？`;
+                statusElem.innerHTML = `<i class="fa-solid fa-crown" style="color: var(--purple-accent);"></i> あなたの選択`;
+                descElem.textContent = `どちらのステラのメロディを捨てる？`;
 
                 window._currentFactionA = factionA;
                 window._currentFactionB = factionB;
@@ -2156,12 +2156,12 @@
                 choicesElem.innerHTML = `
                     <button class="battle-choice-btn" onclick="resolveDecisiveBattle('A')">
                         <i class="fa-solid fa-skull-crossbones" style="font-size: 1.2rem; color: var(--red-accent);"></i>
-                        <span>勢力 ALPHA を滅ぼす</span>
+                        <span>星団A「ステラ・アルファ」を捨てる</span>
                         <small style="font-weight: normal; color: var(--text-muted); font-size: 0.65rem;">${factionA.map(c => c.name).join(', ')}</small>
                     </button>
                     <button class="battle-choice-btn" onclick="resolveDecisiveBattle('B')">
                         <i class="fa-solid fa-skull-crossbones" style="font-size: 1.2rem; color: var(--red-accent);"></i>
-                        <span>勢力 BETA を滅ぼす</span>
+                        <span>星団B「ステラ・ベータ」を捨てる</span>
                         <small style="font-weight: normal; color: var(--text-muted); font-size: 0.65rem;">${factionB.map(c => c.name).join(', ')}</small>
                     </button>
                 `;
