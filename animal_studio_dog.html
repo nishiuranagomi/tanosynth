@@ -395,7 +395,7 @@
                     </div>
 
                     <div class="space-y-3 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
-                        <div class="relative w-full aspect-square bg-black rounded-lg overflow-hidden border border-slate-700 flex items-center justify-center">
+                        <div id="cameraPreviewContainer" class="relative w-full aspect-square bg-black rounded-lg overflow-hidden border border-slate-700 flex items-center justify-center touch-none">
                             <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover hidden"></video>
                             <canvas id="cameraGuideCanvas" width="800" height="800" class="absolute top-0 left-0 w-full h-full pointer-events-none hidden"></canvas>
                             <div id="cameraPlaceholder" class="text-slate-500 text-xs font-bold text-center space-y-1">
@@ -414,6 +414,54 @@
                             <button id="captureCamBtn" onclick="captureCameraTexture()" disabled class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 font-bold rounded-lg text-white text-xs transition">
                                 📸 撮影＆適用
                             </button>
+                        </div>
+
+                        <!-- Camera Live Feed Calibration Controls -->
+                        <div class="space-y-2.5 pt-2 border-t border-slate-800">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-emerald-400">🎯 カメラ映像キャリブレーション</span>
+                                <button onclick="resetCameraCalibration()" class="text-[10px] text-slate-400 hover:text-white underline font-bold">
+                                    ↺ リセット
+                                </button>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span>拡大・縮小 (無段階)</span>
+                                    <div class="flex items-center space-x-1">
+                                        <button onclick="stepCameraParam('camZoom', -0.01)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold border border-slate-700">－</button>
+                                        <input type="number" id="num-camZoom" min="0.5" max="3.0" step="0.01" value="1.00" oninput="updateCameraCalibration('camZoom', this.value)" class="w-16 bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-right text-slate-200 text-[11px]">
+                                        <span class="text-slate-400 text-[10px]">倍</span>
+                                        <button onclick="stepCameraParam('camZoom', 0.01)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold border border-slate-700">＋</button>
+                                    </div>
+                                </div>
+                                <input type="range" min="0.5" max="3.0" step="0.01" value="1.0" id="input-camZoom" oninput="updateCameraCalibration('camZoom', this.value)" class="w-full">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span>X軸移動 (px)</span>
+                                        <div class="flex items-center space-x-1">
+                                            <button onclick="stepCameraParam('camPanX', -1)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold border border-slate-700">◀</button>
+                                            <input type="number" id="num-camPanX" min="-400" max="400" step="1" value="0" oninput="updateCameraCalibration('camPanX', this.value)" class="w-14 bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-right text-slate-200 text-[11px]">
+                                            <button onclick="stepCameraParam('camPanX', 1)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold border border-slate-700">▶</button>
+                                        </div>
+                                    </div>
+                                    <input type="range" min="-400" max="400" step="1" value="0" id="input-camPanX" oninput="updateCameraCalibration('camPanX', this.value)" class="w-full">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span>Y軸移動 (px)</span>
+                                        <div class="flex items-center space-x-1">
+                                            <button onclick="stepCameraParam('camPanY', -1)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold border border-slate-700">▲</button>
+                                            <input type="number" id="num-camPanY" min="-400" max="400" step="1" value="0" oninput="updateCameraCalibration('camPanY', this.value)" class="w-14 bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-right text-slate-200 text-[11px]">
+                                            <button onclick="stepCameraParam('camPanY', 1)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold border border-slate-700">▼</button>
+                                        </div>
+                                    </div>
+                                    <input type="range" min="-400" max="400" step="1" value="0" id="input-camPanY" oninput="updateCameraCalibration('camPanY', this.value)" class="w-full">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="space-y-2.5 pt-2 border-t border-slate-800">
@@ -599,6 +647,11 @@
             barkTimer: 0,
             barkBubbleTimer: 0,
 
+            // Camera Live Feed Calibration Settings
+            camZoom: 1.0,
+            camPanX: 0,
+            camPanY: 0,
+
             // Camera Capture Texture Settings
             cameraTextureImage: null,
             texScale: 1.0,
@@ -650,6 +703,9 @@
                 }
                 triggerBark();
             });
+
+            // Initialize interactive drag/wheel calibration on camera preview
+            initCameraPreviewCalibrationGestures();
 
             // Apply default Shiba Inu preset
             applyBreed('shiba');
@@ -1405,6 +1461,9 @@
                 }
             });
 
+            // Camera Calibration inputs & preview transform
+            syncCameraCalibrationInputs();
+
             // Eyebrow toggle & select
             const ebToggle = document.getElementById('eyebrowToggle');
             if (ebToggle) ebToggle.checked = state.hasEyebrows;
@@ -1457,6 +1516,9 @@
                 glasses: state.glasses,
                 hat: state.hat,
                 neck: state.neck,
+                camZoom: state.camZoom,
+                camPanX: state.camPanX,
+                camPanY: state.camPanY,
                 texScale: state.texScale,
                 texRotate: state.texRotate,
                 texOffsetX: state.texOffsetX,
@@ -1518,6 +1580,118 @@
             } else {
                 state[key] = val;
             }
+        }
+
+        /**
+         * CAMERA LIVE FEED CALIBRATION FUNCTIONS
+         */
+        function updateCameraCalibration(key, val) {
+            const parsed = parseFloat(val);
+            if (isNaN(parsed)) return;
+
+            if (key === 'camZoom') {
+                state.camZoom = Math.min(3.0, Math.max(0.5, Math.round(parsed * 100) / 100));
+            } else if (key === 'camPanX' || key === 'camPanY') {
+                state[key] = Math.min(400, Math.max(-400, Math.round(parsed)));
+            }
+
+            syncCameraCalibrationInputs();
+        }
+
+        function stepCameraParam(key, delta) {
+            const nextVal = (state[key] || 0) + delta;
+            updateCameraCalibration(key, nextVal);
+        }
+
+        function resetCameraCalibration() {
+            state.camZoom = 1.0;
+            state.camPanX = 0;
+            state.camPanY = 0;
+            syncCameraCalibrationInputs();
+            showToast('カメラ位置・倍率をリセットしました');
+        }
+
+        function syncCameraCalibrationInputs() {
+            const zoomRange = document.getElementById('input-camZoom');
+            const zoomNum = document.getElementById('num-camZoom');
+            if (zoomRange) zoomRange.value = state.camZoom;
+            if (zoomNum && document.activeElement !== zoomNum) {
+                zoomNum.value = state.camZoom.toFixed(2);
+            }
+
+            ['camPanX', 'camPanY'].forEach(k => {
+                const rangeEl = document.getElementById(`input-${k}`);
+                const numEl = document.getElementById(`num-${k}`);
+                if (rangeEl) rangeEl.value = state[k];
+                if (numEl && document.activeElement !== numEl) {
+                    numEl.value = state[k];
+                }
+            });
+
+            applyCameraPreviewTransform();
+        }
+
+        function applyCameraPreviewTransform() {
+            const video = document.getElementById('cameraVideo');
+            if (!video) return;
+            // 800x800のキャプチャー基準座標系における1pxをパーセンテージ(1px = 0.125%)に変換して完全一致させる
+            const txPercent = (state.camPanX / 800) * 100;
+            const tyPercent = (state.camPanY / 800) * 100;
+            video.style.transformOrigin = 'center center';
+            video.style.transform = `translate(${txPercent}%, ${tyPercent}%) scale(${state.camZoom})`;
+        }
+
+        function initCameraPreviewCalibrationGestures() {
+            const container = document.getElementById('cameraPreviewContainer');
+            if (!container) return;
+
+            let isDragging = false;
+            let startClientX = 0;
+            let startClientY = 0;
+            let startPanX = 0;
+            let startPanY = 0;
+
+            container.addEventListener('pointerdown', (e) => {
+                if (!cameraStream) return;
+                isDragging = true;
+                startClientX = e.clientX;
+                startClientY = e.clientY;
+                startPanX = state.camPanX;
+                startPanY = state.camPanY;
+                container.setPointerCapture(e.pointerId);
+            });
+
+            container.addEventListener('pointermove', (e) => {
+                if (!isDragging || !cameraStream) return;
+                const rect = container.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+
+                const scaleFactorX = 800 / rect.width;
+                const scaleFactorY = 800 / rect.height;
+                const dx = Math.round((e.clientX - startClientX) * scaleFactorX);
+                const dy = Math.round((e.clientY - startClientY) * scaleFactorY);
+
+                updateCameraCalibration('camPanX', startPanX + dx);
+                updateCameraCalibration('camPanY', startPanY + dy);
+            });
+
+            const endDrag = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                if (container.hasPointerCapture(e.pointerId)) {
+                    container.releasePointerCapture(e.pointerId);
+                }
+            };
+
+            container.addEventListener('pointerup', endDrag);
+            container.addEventListener('pointercancel', endDrag);
+
+            container.addEventListener('wheel', (e) => {
+                if (!cameraStream) return;
+                e.preventDefault();
+                const step = e.deltaY < 0 ? 0.02 : -0.02;
+                updateCameraCalibration('camZoom', state.camZoom + step);
+            }, { passive: false });
         }
 
         function switchTab(tabId) {
@@ -1628,6 +1802,7 @@
                         video: { facingMode: state.facingMode, width: 800, height: 800 } 
                     });
                     video.srcObject = cameraStream;
+                    applyCameraPreviewTransform();
                     video.classList.remove('hidden');
                     guide.classList.remove('hidden');
                     placeholder.classList.add('hidden');
@@ -1668,7 +1843,14 @@
             const sx = (vw - minDim) / 2;
             const sy = (vh - minDim) / 2;
 
-            tCtx.drawImage(video, sx, sy, minDim, minDim, 0, 0, 800, 800);
+            tCtx.fillStyle = '#ffffff';
+            tCtx.fillRect(0, 0, 800, 800);
+
+            tCtx.save();
+            tCtx.translate(400 + state.camPanX, 400 + state.camPanY);
+            tCtx.scale(state.camZoom, state.camZoom);
+            tCtx.drawImage(video, sx, sy, minDim, minDim, -400, -400, 800, 800);
+            tCtx.restore();
 
             const img = new Image();
             img.src = tempCanvas.toDataURL();
