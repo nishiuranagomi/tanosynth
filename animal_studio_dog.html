@@ -822,24 +822,39 @@
         }
 
         function playBarkSound() {
+            // Random pitch between -30 cent and +30 cent
+            const randomCents = (Math.random() * 60) - 30;
+            const playbackRate = Math.pow(2, randomCents / 1200);
+
+            // Random volume in 60 steps between -6 dB and 0 dB
+            const volumeStep = Math.floor(Math.random() * 60); // 0 to 59 (60 discrete levels)
+            const randomDb = -6 + (volumeStep / 59) * 6;
+            const linearVolume = Math.pow(10, randomDb / 20);
+
             try {
                 const pattern = state.barkPattern || 'A';
                 const candidates = barkAudioMap[pattern] || barkAudioMap.A;
                 const selectedAudio = candidates[Math.floor(Math.random() * candidates.length)];
 
+                selectedAudio.preservesPitch = false;
+                if ('mozPreservesPitch' in selectedAudio) selectedAudio.mozPreservesPitch = false;
+                if ('webkitPreservesPitch' in selectedAudio) selectedAudio.webkitPreservesPitch = false;
+                selectedAudio.playbackRate = playbackRate;
+                selectedAudio.volume = Math.min(1, Math.max(0, linearVolume));
+
                 selectedAudio.currentTime = 0;
                 let playPromise = selectedAudio.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(() => {
-                        synthesizePuppyBark();
+                        synthesizePuppyBark(randomCents, linearVolume);
                     });
                 }
             } catch (e) {
-                synthesizePuppyBark();
+                synthesizePuppyBark(randomCents, linearVolume);
             }
         }
 
-        function synthesizePuppyBark() {
+        function synthesizePuppyBark(cents = 0, volumeScale = 1.0) {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
@@ -852,11 +867,12 @@
 
             osc.type = 'sawtooth';
             const now = audioCtx.currentTime;
+            osc.detune.setValueAtTime(cents, now);
             osc.frequency.setValueAtTime(340, now);
             osc.frequency.exponentialRampToValueAtTime(130, now + 0.16);
 
-            gain.gain.setValueAtTime(0.25, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+            gain.gain.setValueAtTime(0.25 * volumeScale, now);
+            gain.gain.exponentialRampToValueAtTime(0.01 * volumeScale, now + 0.18);
 
             osc.connect(gain);
             gain.connect(audioCtx.destination);
