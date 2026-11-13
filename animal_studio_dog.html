@@ -822,13 +822,13 @@
         }
 
         function playBarkSound() {
-            // Random pitch between -100 cent and +100 cent
-            const randomCents = (Math.random() * 200) - 100;
+            // Random pitch between -200 cent and +200 cent
+            const randomCents = (Math.random() * 400) - 200;
             const playbackRate = Math.pow(2, randomCents / 1200);
 
-            // Random volume in 60 steps between -9 dB and 0 dB
+            // Random volume in 60 steps between -12 dB and 0 dB
             const volumeStep = Math.floor(Math.random() * 60); // 0 to 59 (60 discrete levels)
-            const randomDb = -9 + (volumeStep / 59) * 9;
+            const randomDb = -12 + (volumeStep / 59) * 12;
             const linearVolume = Math.pow(10, randomDb / 20);
 
             try {
