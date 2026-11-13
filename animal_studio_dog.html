@@ -287,6 +287,19 @@
                             <input type="range" min="0.5" max="2.0" step="0.05" value="1.0" id="input-eyebrowThickness" oninput="updateParam('eyebrowThickness', this.value)" class="w-full">
                         </div>
                     </div>
+
+                    <div class="space-y-3 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold">🔊 鳴き声</span>
+                            </div>
+                            <select onchange="updateParam('barkPattern', this.value)" id="barkPatternSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-bold text-white">
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="tab-color" class="tab-content hidden space-y-4">
@@ -621,6 +634,7 @@
             eyebrowAngle: 0,
             eyebrowLength: 1.0,
             eyebrowThickness: 1.0,
+            barkPattern: 'A',
 
             // Palette Colors
             primaryColor: '#d97706',
@@ -676,8 +690,12 @@
         const guideCanvas = document.getElementById('cameraGuideCanvas');
         const guideCtx = guideCanvas ? guideCanvas.getContext('2d') : null;
 
-        // Audio Handler
-        let barkAudio = new Audio('./dog.mp3');
+        // Audio Handler (3 types x 2 patterns)
+        const barkAudioMap = {
+            A: [new Audio('./dog1-1.mp3'), new Audio('./dog1-2.mp3')],
+            B: [new Audio('./dog2-1.mp3'), new Audio('./dog2-2.mp3')],
+            C: [new Audio('./dog3-1.mp3'), new Audio('./dog3-2.mp3')]
+        };
         let audioCtx = null;
 
         // Visual Particles
@@ -805,8 +823,12 @@
 
         function playBarkSound() {
             try {
-                barkAudio.currentTime = 0;
-                let playPromise = barkAudio.play();
+                const pattern = state.barkPattern || 'A';
+                const candidates = barkAudioMap[pattern] || barkAudioMap.A;
+                const selectedAudio = candidates[Math.floor(Math.random() * candidates.length)];
+
+                selectedAudio.currentTime = 0;
+                let playPromise = selectedAudio.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(() => {
                         synthesizePuppyBark();
@@ -1470,6 +1492,10 @@
             const ebSelect = document.getElementById('eyebrowStyleSelect');
             if (ebSelect) ebSelect.value = state.eyebrowStyle;
 
+            // Bark pattern select
+            const barkSelect = document.getElementById('barkPatternSelect');
+            if (barkSelect) barkSelect.value = state.barkPattern || 'A';
+
             // Accessories
             const glassesSelect = document.getElementById('glassesSelect');
             if (glassesSelect) glassesSelect.value = state.glasses;
@@ -1526,7 +1552,8 @@
                 texBrightness: state.texBrightness,
                 texContrast: state.texContrast,
                 texSaturate: state.texSaturate,
-                texHue: state.texHue
+                texHue: state.texHue,
+                barkPattern: state.barkPattern
             };
 
             const jsonStr = JSON.stringify(exportData, null, 2);
@@ -1560,6 +1587,9 @@
                             state[key] = data[key];
                         }
                     });
+                    if (!('barkPattern' in data) || !['A', 'B', 'C'].includes(data.barkPattern)) {
+                        state.barkPattern = 'A';
+                    }
                     syncControlInputs();
                     showToast(`設定「${file.name}」を読み込みました 📂`);
                 } catch (err) {
@@ -1573,7 +1603,7 @@
         function updateParam(key, val) {
             if (typeof val === 'boolean') {
                 state[key] = val;
-            } else if (!isNaN(val) && key !== 'eyebrowStyle' && key !== 'glasses' && key !== 'hat' && key !== 'neck') {
+            } else if (!isNaN(val) && key !== 'eyebrowStyle' && key !== 'glasses' && key !== 'hat' && key !== 'neck' && key !== 'barkPattern') {
                 state[key] = parseFloat(val);
                 const display = document.getElementById(`val-${key}`);
                 if (display) display.textContent = val + (key === 'texRotate' || key === 'texHue' || key === 'earAngle' || key === 'eyebrowAngle' ? '°' : '');
